@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "amsphyslab-course-tools"
 version = "0.1.0"
-description = ""
-authors = ["David Fokkema <davidfokkema@gmail.com>"]
+description = "Canvas course tools for Amsterdam physics labs"
+authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
