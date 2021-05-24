@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "amsphyslab-course-tools"
+name = "canvas-course-tools"
 version = "0.1.0"
-description = "Canvas course tools for Amsterdam physics labs"
+description = "Canvas course tools"
 authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
 
 [tool.poetry.scripts]
-canvas = "amsphyslab_course_tools.cli:cli"
+canvas = "canvas_course_tools.cli:cli"
 
 [tool.poetry.dependencies]
 python = "^3.9"

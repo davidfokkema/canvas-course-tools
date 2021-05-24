@@ -1,4 +1,4 @@
-amsphyslab-course-tools
+canvas-course-tools
 =======================
 
-Canvas course tools for Amsterdam physics labs
+Canvas course tools

@@ -7,8 +7,7 @@ import toml
 
 from . import __version__
 
-APP_NAME = "amsphyslab-course-tools"
-APP_AUTHOR = "amsphyslab"
+APP_NAME = "canvas-course-tools"
 CONFIG_FILE = "config.toml"
 
 
@@ -39,7 +38,7 @@ def show_apikey():
 
 def read_config():
     """Read configuration file."""
-    config_dir = pathlib.Path(appdirs.user_config_dir(APP_NAME, APP_AUTHOR))
+    config_dir = pathlib.Path(appdirs.user_config_dir(APP_NAME))
     config_path = config_dir / CONFIG_FILE
     if config_path.is_file():
         with open(config_path) as f:
