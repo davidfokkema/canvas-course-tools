@@ -23,9 +23,9 @@ def servers():
     pass
 
 
-@servers.command("show")
+@servers.command("list")
 def show_servers():
-    """Show the registered servers and access tokens."""
+    """List the registered servers."""
     config = read_config()
     try:
         servers = config["servers"]
@@ -70,7 +70,7 @@ def add_server(alias, url, token, force):
 @servers.command("remove")
 @click.argument("alias", type=str)
 def remove_server(alias):
-    """Remove server from configuration"""
+    """Remove server from configuration."""
     config = read_config()
     try:
         del config["servers"][alias]
