@@ -67,6 +67,20 @@ def add_server(alias, url, token, force):
         write_config(config)
 
 
+@servers.command("remove")
+@click.argument("alias", type=str)
+def remove_server(alias):
+    """Remove server from configuration"""
+    config = read_config()
+    try:
+        del config["servers"][alias]
+    except KeyError:
+        print(f"[bold red] Unknown server alias {alias}.[/bold red]")
+    else:
+        write_config(config)
+        print(f"Server alias {alias} removed.")
+
+
 def read_config():
     """Read configuration file."""
     config_path = get_config_path()
