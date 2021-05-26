@@ -14,6 +14,8 @@ from rich import print, box
 from rich.table import Table
 import toml
 
+from canvas_course_tools.canvas_tasks import CanvasTasks
+
 from . import __version__
 
 APP_NAME = "canvas-course-tools"
@@ -87,6 +89,36 @@ def remove_server(alias):
     else:
         write_config(config)
         print(f"Server alias {alias} removed.")
+
+
+@cli.group()
+def courses():
+    pass
+
+
+@courses.command("list")
+@click.argument("alias", type=str)
+def list_courses(alias):
+    """List Canvas courses."""
+    config = read_config()
+    try:
+        server = config["servers"][alias]
+    except KeyError:
+        print(f"[bold red] Unknown server alias {alias}.[/bold red]")
+    else:
+        canvas = CanvasTasks(server["url"], server["token"])
+        courses = canvas.list_courses()
+        table = Table(box=box.HORIZONTALS)
+        table.add_column("ID")
+        table.add_column("Course Code")
+        table.add_column("Name")
+        table.add_column("Start")
+        for course in courses:
+            table.add_row(
+                str(course.id), course.course_code, course.name, course.start_at
+            )
+        print()
+        print(table)
 
 
 def read_config():
