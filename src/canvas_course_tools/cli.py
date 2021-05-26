@@ -48,8 +48,7 @@ def show_servers():
 @click.option(
     "-f",
     "--force",
-    type=bool,
-    default=False,
+    is_flag=True,
     help="If alias already exists, force overwrite.",
 )
 def add_server(alias, url, token, force):
