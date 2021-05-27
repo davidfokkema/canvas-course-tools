@@ -99,7 +99,14 @@ def courses():
 
 @courses.command("list")
 @click.argument("alias", type=str)
-def list_courses(alias):
+@click.option(
+    "-c",
+    "--code/--no-code",
+    "use_codes",
+    help="Include course codes.",
+    default=False,
+)
+def list_courses(alias, use_codes):
     """List Canvas courses."""
     config = read_config()
     try:
@@ -111,7 +118,8 @@ def list_courses(alias):
         courses = canvas.list_courses()
         table = Table(box=box.HORIZONTALS)
         table.add_column("ID")
-        table.add_column("Course Code")
+        if use_codes:
+            table.add_column("Course Code")
         table.add_column("Name")
         table.add_column("Year")
         for course in courses:
@@ -119,9 +127,10 @@ def list_courses(alias):
                 academic_year = academic_year_from_time(course.start_at)
             else:
                 academic_year = "Unknown"
-            table.add_row(
-                str(course.id), course.course_code, course.name, academic_year
-            )
+            fields = [str(course.id), course.name, academic_year]
+            if use_codes:
+                fields.insert(1, course.course_code)
+            table.add_row(*fields)
         print()
         print(table)
 
