@@ -72,7 +72,7 @@ def add_server(alias, url, token, force):
     config = read_config()
     servers = config.setdefault("servers", {})
     if alias in servers and not force:
-        print(f"[bold red] Server alias {alias} already exists.[/bold red]")
+        print(f"[bold red] Server '{alias}' already exists.[/bold red]")
     else:
         servers[alias] = {"url": url, "token": token}
         write_config(config)
@@ -86,10 +86,10 @@ def remove_server(alias):
     try:
         del config["servers"][alias]
     except KeyError:
-        print(f"[bold red] Unknown server alias {alias}.[/bold red]")
+        print(f"[bold red] Unknown server '{alias}'.[/bold red]")
     else:
         write_config(config)
-        print(f"Server alias {alias} removed.")
+        print(f"Server '{alias}' removed.")
 
 
 @cli.group()
@@ -112,7 +112,7 @@ def list_courses(alias, use_codes):
     try:
         server = config["servers"][alias]
     except KeyError:
-        print(f"[bold red] Unknown server alias {alias}.[/bold red]")
+        print(f"[bold red] Unknown server '{alias}'.[/bold red]")
     else:
         canvas = CanvasTasks(server["url"], server["token"])
         courses = canvas.list_courses()
