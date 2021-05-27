@@ -101,7 +101,7 @@ def courses():
 @click.argument("alias", type=str)
 @click.option(
     "-c",
-    "--code/--no-code",
+    "--codes/--no-codes",
     "use_codes",
     help="Include course codes.",
     default=False,
