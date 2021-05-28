@@ -153,8 +153,11 @@ def write_config(config):
     """
     create_config_dir()
     config_path = get_config_path()
+    toml_config = toml.dumps(config)
     with open(config_path, "w") as f:
-        toml.dump(config, f)
+        # separate TOML generation from writing to file, or an exception
+        # generating TOML will result in an empty file
+        f.write(toml_config)
 
 
 def get_config_path():
