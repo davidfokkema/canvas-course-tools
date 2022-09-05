@@ -21,7 +21,7 @@ from canvas_course_tools.canvas_tasks import (
     Unauthorized,
 )
 
-from . import __version__
+from canvas_course_tools import __version__
 
 APP_NAME = "canvas-course-tools"
 CONFIG_FILE = "config.toml"
