@@ -19,6 +19,7 @@ from canvas_course_tools.canvas_tasks import (
     CanvasTasks,
     ResourceDoesNotExist,
     Unauthorized,
+    InvalidAccessToken,
 )
 
 from canvas_course_tools import __version__
@@ -127,24 +128,28 @@ def list_courses(alias, use_codes):
         print(f"[bold red] Unknown server '{alias}'.[/bold red]")
     else:
         canvas = CanvasTasks(server["url"], server["token"])
-        courses = canvas.list_courses()
-        table = Table(box=box.HORIZONTALS)
-        table.add_column("ID")
-        if use_codes:
-            table.add_column("Course Code")
-        table.add_column("Name")
-        table.add_column("Year")
-        for course in courses:
-            if course.start_at is not None:
-                academic_year = academic_year_from_time(course.start_at)
-            else:
-                academic_year = "Unknown"
-            fields = [str(course.id), course.name, academic_year]
+        try:
+            courses = canvas.list_courses()
+        except InvalidAccessToken:
+            print(f"[bold red]You must update your canvas access token.[/bold red]")
+        else:
+            table = Table(box=box.HORIZONTALS)
+            table.add_column("ID")
             if use_codes:
-                fields.insert(1, course.course_code)
-            table.add_row(*fields)
-        print()
-        print(table)
+                table.add_column("Course Code")
+            table.add_column("Name")
+            table.add_column("Year")
+            for course in courses:
+                if course.start_at is not None:
+                    academic_year = academic_year_from_time(course.start_at)
+                else:
+                    academic_year = "Unknown"
+                fields = [str(course.id), course.name, academic_year]
+                if use_codes:
+                    fields.insert(1, course.course_code)
+                table.add_row(*fields)
+            print()
+            print(table)
 
 
 @courses.command("add")
