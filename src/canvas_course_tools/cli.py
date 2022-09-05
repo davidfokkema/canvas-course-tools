@@ -111,7 +111,15 @@ def courses():
     default=False,
 )
 def list_courses(alias, use_codes):
-    """List Canvas courses."""
+    """List Canvas courses.
+
+    List all canvas courses available at the previously registered server ALIAS.
+    Use:
+
+        $ canvas servers list
+
+    to get a list of all available aliases.
+    """
     config = read_config()
     try:
         server = config["servers"][alias]
