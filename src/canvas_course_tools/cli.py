@@ -103,7 +103,7 @@ def courses():
 
 
 @courses.command("list")
-@click.argument("alias", type=str)
+@click.argument("server_alias", type=str)
 @click.option(
     "-c",
     "--codes/--no-codes",
@@ -111,21 +111,21 @@ def courses():
     help="Include course codes.",
     default=False,
 )
-def list_courses(alias, use_codes):
+def list_courses(server_alias, use_codes):
     """List Canvas courses.
 
-    List all canvas courses available at the previously registered server ALIAS.
-    Use:
+    List all canvas courses available at the previously registered server
+    SERVER_ALIAS. Use:
 
         $ canvas servers list
 
-    to get a list of all available aliases.
+    to get a list of all available server aliases.
     """
     config = read_config()
     try:
-        server = config["servers"][alias]
+        server = config["servers"][server_alias]
     except KeyError:
-        print(f"[bold red] Unknown server '{alias}'.[/bold red]")
+        print(f"[bold red] Unknown server '{server_alias}'.[/bold red]")
     else:
         canvas = CanvasTasks(server["url"], server["token"])
         try:
