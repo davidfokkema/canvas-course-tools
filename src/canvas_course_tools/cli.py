@@ -256,3 +256,7 @@ def academic_year_from_time(time):
     if time.month < 8:
         start_year -= 1
     return f"{start_year}-{start_year + 1}"
+
+
+if __name__ == "__main__":
+    cli()
