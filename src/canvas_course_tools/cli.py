@@ -18,7 +18,7 @@ import toml
 from canvas_course_tools.canvas_tasks import (
     CanvasTasks,
     ResourceDoesNotExist,
-    Unauthorized,
+    Forbidden,
     InvalidAccessToken,
 )
 
@@ -154,24 +154,18 @@ def list_courses(server_alias, use_codes):
 
 @courses.command("add")
 @click.argument("alias")
+@click.argument("server_alias")
 @click.argument("course_id")
 @click.option(
-    "-s",
-    "--server",
-    "server_alias",
-    help="Alias of the server containing this course.",
-    required=True,
-)
-@click.option(
-    "-f",
-    "--force",
+    "-U",
+    "--update",
     is_flag=True,
-    help="If alias already exists, force overwrite.",
+    help="If alias already exists, update to the new course.",
 )
-def add_course(alias, course_id, server_alias, force):
+def add_course(alias, course_id, server_alias, update):
     config = read_config()
     courses = config.setdefault("courses", {})
-    if alias in courses and not force:
+    if alias in courses and not update:
         print(f"[bold red] Course '{alias}' already exists.[/bold red]")
     else:
         try:
@@ -181,10 +175,10 @@ def add_course(alias, course_id, server_alias, force):
         else:
             canvas = CanvasTasks(server["url"], server["token"])
             try:
-                course = canvas.get_course(course_id)
+                canvas.get_course(course_id)
             except ResourceDoesNotExist:
                 print(f"[bold red]This course ID does not exist.[/bold red]")
-            except Unauthorized:
+            except Forbidden:
                 print(
                     f"[bold red]You don't have authorization for this course.[/bold red]"
                 )

@@ -1,5 +1,5 @@
 from canvasapi import Canvas
-from canvasapi.exceptions import ResourceDoesNotExist, Unauthorized, InvalidAccessToken
+from canvasapi.exceptions import ResourceDoesNotExist, Forbidden, InvalidAccessToken
 
 
 class CanvasTasks:
