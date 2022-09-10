@@ -104,7 +104,7 @@ def courses():
 
 
 @courses.command("list")
-@click.argument("server_alias", type=str)
+@click.argument("server_alias", type=str, default="")
 @click.option(
     "-c",
     "--codes/--no-codes",
@@ -123,28 +123,39 @@ def list_courses(server_alias, use_codes):
     to get a list of all available server aliases.
     """
     config = read_config()
-    try:
-        server = config["servers"][server_alias]
-    except KeyError:
-        print(f"[bold red] Unknown server '{server_alias}'.[/bold red]")
+    course_aliases = {
+        (v["server"], v["course_id"]): k for k, v in config["courses"].items()
+    }
+    if not server_alias:
+        server_aliases = set([v["server"] for k, v in config["courses"].items()])
     else:
+        server_aliases = [server_alias]
+
+    courses = []
+    for server_alias in server_aliases:
+        try:
+            server = config["servers"][server_alias]
+        except KeyError:
+            print(f"[bold red]Unknown server '{server_alias}'.")
+            continue
+
         canvas = CanvasTasks(server["url"], server["token"])
         try:
-            courses = canvas.list_courses()
+            canvas_courses = canvas.list_courses()
         except InvalidAccessToken:
             print(f"[bold red]You must update your canvas access token.[/bold red]")
-        else:
-            aliases = {
-                (v["server"], v["course_id"]): k for k, v in config["courses"].items()
-            }
-            print_courses(server_alias, courses, aliases, use_codes)
+            continue
+        courses.extend([(server_alias, course) for course in canvas_courses])
+
+    if courses:
+        print_courses(courses, course_aliases, use_codes)
 
 
-def print_courses(server_alias, courses, aliases, use_codes):
+def print_courses(courses, aliases, use_codes):
     """Print a list of courses in a formatted table.
 
     Args:
-        courses (list): list of Canvas Course objects
+        courses (list): list of (server, Canvas Course) tuples
         aliases (dict): dictionary of (server, course_id) keys with the alias
             name as value
         use_codes (bool): if True, show the SIS course code
@@ -156,14 +167,14 @@ def print_courses(server_alias, courses, aliases, use_codes):
         table.add_column("Course Code")
     table.add_column("Name")
     table.add_column("Year")
-    for course in courses:
+    for server, course in courses:
         course_id = str(course.id)
         if course.start_at is not None:
             academic_year = academic_year_from_time(course.start_at)
         else:
             academic_year = "Unknown"
-        if (server_alias, course_id) in aliases:
-            alias = aliases[(server_alias, course_id)]
+        if (server, course_id) in aliases:
+            alias = aliases[(server, course_id)]
         else:
             alias = None
         fields = [course_id, alias, course.name, academic_year]
