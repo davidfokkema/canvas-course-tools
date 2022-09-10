@@ -1,4 +1,4 @@
-import dateutil
+import dateutil.parser
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 

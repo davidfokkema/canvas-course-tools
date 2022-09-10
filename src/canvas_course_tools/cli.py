@@ -9,7 +9,6 @@ easier than throug the web interface.
 import pathlib
 
 import appdirs
-import dateutil.parser
 import rich_click as click
 import toml
 from rich import box, print
@@ -121,41 +120,29 @@ def list_courses(server_alias, use_codes):
     to get a list of all available server aliases.
     """
     config = read_config()
-    course_aliases = {
-        (v["server"], v["course_id"]): k for k, v in config["courses"].items()
-    }
-    if not server_alias:
-        server_aliases = set([v["server"] for k, v in config["courses"].items()])
-    else:
-        server_aliases = [server_alias]
-
-    courses = []
-    for server_alias in server_aliases:
+    if server_alias:
+        # server_aliases = set([v["server"] for k, v in config["courses"].items()])
+        # else:
+        canvas = get_canvas(server_alias)
         try:
-            server = config["servers"][server_alias]
-        except KeyError:
-            print(f"[bold red]Unknown server '{server_alias}'.")
-            continue
-
-        canvas = CanvasTasks(server["url"], server["token"])
-        try:
-            canvas_courses = canvas.list_courses()
+            courses = canvas.list_courses()
         except InvalidAccessToken:
-            print(f"[bold red]You must update your canvas access token.[/bold red]")
-            continue
-        courses.extend([(server_alias, course) for course in canvas_courses])
+            raise click.UsageError(f"You must update your canvas access token.")
+        else:
+            print_courses(courses, use_codes)
+    else:
+        courses = []
+        for alias, course in config["courses"].items():
+            canvas = get_canvas(course["server"])
+            courses.append(canvas.get_course(course["course_id"]))
+        print_courses(courses, use_codes)
 
-    if courses:
-        print_courses(courses, course_aliases, use_codes)
 
-
-def print_courses(courses, aliases, use_codes):
+def print_courses(courses, use_codes):
     """Print a list of courses in a formatted table.
 
     Args:
-        courses (list): list of (server, Canvas Course) tuples
-        aliases (dict): dictionary of (server, course_id) keys with the alias
-            name as value
+        courses (list): list of Canvas courses
         use_codes (bool): if True, show the SIS course code
     """
     table = Table(box=box.HORIZONTALS)
@@ -165,11 +152,8 @@ def print_courses(courses, aliases, use_codes):
         table.add_column("Course Code")
     table.add_column("Name")
     table.add_column("Year")
-    for server, course in courses:
-        if (server, course["id"]) in aliases:
-            alias = aliases[(server, course["id"])]
-        else:
-            alias = None
+    for course in courses:
+        alias = course.get("alias", None)
         fields = [str(course["id"]), alias, course["name"], course["academic_year"]]
         if use_codes:
             fields.insert(1, course["course_code"])
@@ -263,6 +247,16 @@ def create_config_dir():
     """Create configuration directory if necessary."""
     config_path = get_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def get_canvas(server_alias):
+    config = read_config()
+    try:
+        server = config["servers"][server_alias]
+    except KeyError:
+        raise click.UsageError(f"Unknown server '{server_alias}'.")
+    else:
+        return CanvasTasks(server["url"], server["token"])
 
 
 if __name__ == "__main__":
