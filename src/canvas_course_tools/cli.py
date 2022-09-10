@@ -9,7 +9,8 @@ easier than throug the web interface.
 import pathlib
 
 import appdirs
-import click
+
+import rich_click as click
 import dateutil.parser
 from rich import print, box
 from rich.table import Table
