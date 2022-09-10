@@ -186,7 +186,7 @@ def print_courses(courses, aliases, use_codes):
 @courses.command("add")
 @click.argument("alias")
 @click.argument("server_alias")
-@click.argument("course_id")
+@click.argument("course_id", type=int)
 @click.option(
     "-U",
     "--update",
