@@ -133,23 +133,44 @@ def list_courses(server_alias, use_codes):
         except InvalidAccessToken:
             print(f"[bold red]You must update your canvas access token.[/bold red]")
         else:
-            table = Table(box=box.HORIZONTALS)
-            table.add_column("ID")
-            if use_codes:
-                table.add_column("Course Code")
-            table.add_column("Name")
-            table.add_column("Year")
-            for course in courses:
-                if course.start_at is not None:
-                    academic_year = academic_year_from_time(course.start_at)
-                else:
-                    academic_year = "Unknown"
-                fields = [str(course.id), course.name, academic_year]
-                if use_codes:
-                    fields.insert(1, course.course_code)
-                table.add_row(*fields)
-            print()
-            print(table)
+            aliases = {
+                (v["server"], v["course_id"]): k for k, v in config["courses"].items()
+            }
+            print_courses(server_alias, courses, aliases, use_codes)
+
+
+def print_courses(server_alias, courses, aliases, use_codes):
+    """Print a list of courses in a formatted table.
+
+    Args:
+        courses (list): list of Canvas Course objects
+        aliases (dict): dictionary of (server, course_id) keys with the alias
+            name as value
+        use_codes (bool): if True, show the SIS course code
+    """
+    table = Table(box=box.HORIZONTALS)
+    table.add_column("ID")
+    table.add_column("Alias")
+    if use_codes:
+        table.add_column("Course Code")
+    table.add_column("Name")
+    table.add_column("Year")
+    for course in courses:
+        course_id = str(course.id)
+        if course.start_at is not None:
+            academic_year = academic_year_from_time(course.start_at)
+        else:
+            academic_year = "Unknown"
+        if (server_alias, course_id) in aliases:
+            alias = aliases[(server_alias, course_id)]
+        else:
+            alias = None
+        fields = [course_id, alias, course.name, academic_year]
+        if use_codes:
+            fields.insert(1, course.course_code)
+        table.add_row(*fields)
+    print()
+    print(table)
 
 
 @courses.command("add")
