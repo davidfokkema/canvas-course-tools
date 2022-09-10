@@ -9,21 +9,19 @@ easier than throug the web interface.
 import pathlib
 
 import appdirs
-
-import rich_click as click
 import dateutil.parser
-from rich import print, box
-from rich.table import Table
+import rich_click as click
 import toml
-
-from canvas_course_tools.canvas_tasks import (
-    CanvasTasks,
-    ResourceDoesNotExist,
-    Forbidden,
-    InvalidAccessToken,
-)
+from rich import box, print
+from rich.table import Table
 
 from canvas_course_tools import __version__
+from canvas_course_tools.canvas_tasks import (
+    CanvasTasks,
+    Forbidden,
+    InvalidAccessToken,
+    ResourceDoesNotExist,
+)
 
 APP_NAME = "canvas-course-tools"
 CONFIG_FILE = "config.toml"
