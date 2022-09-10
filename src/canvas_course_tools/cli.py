@@ -166,18 +166,13 @@ def print_courses(courses, aliases, use_codes):
     table.add_column("Name")
     table.add_column("Year")
     for server, course in courses:
-        course_id = str(course.id)
-        if course.start_at is not None:
-            academic_year = academic_year_from_time(course.start_at)
-        else:
-            academic_year = "Unknown"
-        if (server, course_id) in aliases:
-            alias = aliases[(server, course_id)]
+        if (server, course["id"]) in aliases:
+            alias = aliases[(server, course["id"])]
         else:
             alias = None
-        fields = [course_id, alias, course.name, academic_year]
+        fields = [str(course["id"]), alias, course["name"], course["academic_year"]]
         if use_codes:
-            fields.insert(1, course.course_code)
+            fields.insert(1, course["course_code"])
         table.add_row(*fields)
     print()
     print(table)
@@ -268,19 +263,6 @@ def create_config_dir():
     """Create configuration directory if necessary."""
     config_path = get_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
-
-
-def academic_year_from_time(time):
-    """Return the academic year from a time string.
-
-    Args:
-        time: a string with a time in ISO format.
-    """
-    time = dateutil.parser.isoparse(time)
-    start_year = time.year
-    if time.month < 8:
-        start_year -= 1
-    return f"{start_year}-{start_year + 1}"
 
 
 if __name__ == "__main__":
