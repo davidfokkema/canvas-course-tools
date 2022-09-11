@@ -121,20 +121,26 @@ def list_courses(server_alias, use_codes):
     """
     config = read_config()
     if server_alias:
-        # server_aliases = set([v["server"] for k, v in config["courses"].items()])
-        # else:
         canvas = get_canvas(server_alias)
         try:
             courses = canvas.list_courses()
         except InvalidAccessToken:
             raise click.UsageError(f"You must update your canvas access token.")
         else:
+            aliases = {
+                v["course_id"]: k
+                for k, v in config["courses"].items()
+                if v["server"] == server_alias
+            }
+            for course in courses:
+                course["alias"] = aliases.get(course["id"], None)
             print_courses(courses, use_codes)
     else:
         courses = []
         for alias, course in config["courses"].items():
             canvas = get_canvas(course["server"])
-            courses.append(canvas.get_course(course["course_id"]))
+            course = canvas.get_course(course["course_id"])
+            courses.append(course | {"alias": alias})
         print_courses(courses, use_codes)
 
 
