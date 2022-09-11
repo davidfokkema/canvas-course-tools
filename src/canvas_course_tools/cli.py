@@ -34,6 +34,7 @@ def cli():
 
 @cli.group()
 def servers():
+    """Add, remove and list Canvas servers."""
     pass
 
 
@@ -97,6 +98,7 @@ def remove_server(alias):
 
 @cli.group()
 def courses():
+    """Add, remove and list Canvas courses."""
     pass
 
 
@@ -179,6 +181,7 @@ def print_courses(courses, use_codes):
     help="If alias already exists, update to the new course.",
 )
 def add_course(alias, course_id, server_alias, update):
+    """Register a course using an alias."""
     config = read_config()
     courses = config.setdefault("courses", {})
     if alias in courses and not update:
