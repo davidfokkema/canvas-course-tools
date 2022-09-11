@@ -117,9 +117,9 @@ def list_courses(server_alias, use_codes):
     List all canvas courses available at the previously registered server
     SERVER_ALIAS. Use:
 
-        $ canvas servers list
+        $ canvas courses list
 
-    to get a list of all available server aliases.
+    to get a list of all available course aliases.
     """
     config = read_config()
     if server_alias:
