@@ -43,16 +43,49 @@ class CanvasTasks:
         added custom fields like 'academic_year'.
 
         Args:
-            canvas_course (canvas.Course): a Canvas Course object
+            canvas_course (canvas.Course): a Canvas Course object.
 
         Returns:
-            dict: a custom course object
+            dict: a custom course object with fields id, name, course_code and
+                academic_year.
         """
         return {
             "id": canvas_course.id,
             "name": canvas_course.name,
             "course_code": canvas_course.course_code,
             "academic_year": academic_year_from_time(canvas_course.start_at),
+        }
+
+    def get_students(self, course_id):
+        """Get all students in a course.
+
+        Args:
+            course_id (integer): the Canvas course id
+
+        Returns:
+            list: a list of student objects
+        """
+        course = self.canvas.get_course(course_id)
+        students = course.get_users(enrollment_type=["student"])
+        return [self._make_student_object(student) for student in students]
+
+    def _make_student_object(self, student):
+        """Make a student object from a Canvas Student.
+
+        Build a custom student object with only the fields we use and which are
+        the same across the servers we tested.
+
+        Args:
+            student (canvas.Student): a Canvas Student object
+
+        Returns:
+            dict: a custom student object with fields id, name and
+                sortable_name.
+        """
+        return {
+            "id": student.id,
+            "name": student.short_name,
+            "sortable_name": student.sortable_name,
         }
 
 

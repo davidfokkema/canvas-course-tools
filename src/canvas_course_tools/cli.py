@@ -146,6 +146,35 @@ def list_courses(server_alias, use_codes):
         print_courses(courses, use_codes)
 
 
+@cli.group()
+def students():
+    """Search for or list students."""
+    pass
+
+
+@students.command("list")
+@click.argument("course_alias")
+@click.option(
+    "--all/-no-all",
+    default=False,
+    help="List all students without splitting them into sections.",
+)
+def list_students(course_alias, all):
+    """List students in course COURSE_ALIAS."""
+    config = read_config()
+    server, course_id = (
+        config["courses"][course_alias][k] for k in ("server", "course_id")
+    )
+    canvas = get_canvas(server)
+    course = canvas.get_course(course_id)
+    print(f"# {course['name']}\n")
+    if all:
+        students = canvas.get_students(course_id)
+        students.sort(key=lambda x: x["sortable_name"])
+        for student in students:
+            print(f"{student['name']} ({student['id']})")
+
+
 def print_courses(courses, use_codes):
     """Print a list of courses in a formatted table.
 
