@@ -84,26 +84,14 @@ class CanvasTasks:
         """
         course = self.canvas.get_course(course_id)
         students = course.get_users(enrollment_type=["student"])
-        return [self._make_student_object(student) for student in students]
-
-    def _make_student_object(self, student):
-        """Make a student object from a Canvas Student.
-
-        Build a custom student object with only the fields we use and which are
-        the same across the servers we tested.
-
-        Args:
-            student (canvas.Student): a Canvas Student object
-
-        Returns:
-            dict: a custom student object with fields id, name and
-                sortable_name.
-        """
-        return {
-            "id": student.id,
-            "name": student.short_name,
-            "sortable_name": student.sortable_name,
-        }
+        return [
+            Student(
+                id=student.id,
+                name=student.short_name,
+                sortable_name=student.sortable_name,
+            )
+            for student in students
+        ]
 
     def get_sections(self, course_id):
         """Get a list of sections, including students

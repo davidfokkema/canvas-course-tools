@@ -173,9 +173,9 @@ def list_students(course_alias, all):
     print(f"# {course['name']}\n")
     if all:
         students = canvas.get_students(course_id)
-        students.sort(key=lambda x: x["sortable_name"])
+        students.sort(key=lambda x: x.sortable_name)
         for student in students:
-            print(f"{student['name']} ({student['id']})")
+            print(f"{student.name} ({student.id})")
     else:
         for section in canvas.get_sections(course_id):
             print(f"## {section.name}\n")
