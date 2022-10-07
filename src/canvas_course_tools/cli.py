@@ -131,7 +131,7 @@ def list_courses(server_alias, use_codes):
         else:
             aliases = {
                 v["course_id"]: k
-                for k, v in config["courses"].items()
+                for k, v in config.get("courses", {}).items()
                 if v["server"] == server_alias
             }
             for course in courses:
@@ -139,11 +139,14 @@ def list_courses(server_alias, use_codes):
             print_courses(courses, use_codes)
     else:
         courses = []
-        for alias, course in config["courses"].items():
-            canvas = get_canvas(course["server"])
-            course = canvas.get_course(course["course_id"])
-            courses.append(course | {"alias": alias})
-        print_courses(courses, use_codes)
+        if "courses" in config:
+            for alias, course in config["courses"].items():
+                canvas = get_canvas(course["server"])
+                course = canvas.get_course(course["course_id"])
+                courses.append(course | {"alias": alias})
+            print_courses(courses, use_codes)
+        else:
+            raise click.UsageError("No courses are registered yet.")
 
 
 @cli.group()
