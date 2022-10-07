@@ -1,9 +1,21 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 import dateutil.parser
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
+
+
+@dataclass(frozen=True)
+class Course:
+    id: int
+    name: str
+    course_code: str
+    academic_year: str = field(init=False)
+    _start: str
+
+    def __post_init__(self):
+        object.__setattr__(self, "academic_year", academic_year_from_time(self._start))
 
 
 @dataclass(frozen=True)
@@ -51,7 +63,13 @@ class CanvasTasks:
         Returns:
             A Canvas course object.
         """
-        return self._make_course_object(self.canvas.get_course(course_id))
+        course = self.canvas.get_course(course_id)
+        return Course(
+            id=course.id,
+            name=course.name,
+            course_code=course.course_code,
+            _start=course.start_at,
+        )
 
     def _make_course_object(self, canvas_course):
         """Make a course object from a Canvas Course.

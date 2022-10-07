@@ -170,7 +170,7 @@ def list_students(course_alias, all):
     )
     canvas = get_canvas(server)
     course = canvas.get_course(course_id)
-    print(f"# {course['name']}\n")
+    print(f"# {course.name}\n")
     if all:
         students = canvas.get_students(course_id)
         students.sort(key=lambda x: x.sortable_name)
