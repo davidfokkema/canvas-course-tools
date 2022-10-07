@@ -1,6 +1,23 @@
+from dataclasses import dataclass
+from typing import List
+
 import dateutil.parser
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
+
+
+@dataclass(frozen=True)
+class Student:
+    id: int
+    name: str
+    sortable_name: str
+
+
+@dataclass(frozen=True)
+class Section:
+    id: int
+    name: str
+    students: List[Student]
 
 
 class CanvasTasks:
@@ -87,6 +104,25 @@ class CanvasTasks:
             "name": student.short_name,
             "sortable_name": student.sortable_name,
         }
+
+    def get_sections(self, course_id):
+        course = self.canvas.get_course(course_id)
+        sections = course.get_sections(include=["students"])
+        return [self._make_section_object(section) for section in sections]
+
+    def _make_section_object(self, section):
+        return Section(
+            id=section.id,
+            name=section.name,
+            students=[
+                Student(
+                    id=student["id"],
+                    name=student["short_name"],
+                    sortable_name=student["sortable_name"],
+                )
+                for student in section.students
+            ],
+        )
 
 
 def academic_year_from_time(time):

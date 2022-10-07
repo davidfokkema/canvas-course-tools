@@ -176,6 +176,12 @@ def list_students(course_alias, all):
         students.sort(key=lambda x: x["sortable_name"])
         for student in students:
             print(f"{student['name']} ({student['id']})")
+    else:
+        for section in canvas.get_sections(course_id):
+            print(f"## {section.name}\n")
+            for student in section.students:
+                print(f"{student.name} ({student.id})")
+            print("\n")
 
 
 def print_courses(courses, use_codes):
