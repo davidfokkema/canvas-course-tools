@@ -106,23 +106,31 @@ class CanvasTasks:
         }
 
     def get_sections(self, course_id):
+        """Get a list of sections, including students
+
+        Args:
+            course_id (int): the course id
+
+        Returns:
+            List[Section]: A list of Sections
+        """
         course = self.canvas.get_course(course_id)
         sections = course.get_sections(include=["students"])
-        return [self._make_section_object(section) for section in sections]
-
-    def _make_section_object(self, section):
-        return Section(
-            id=section.id,
-            name=section.name,
-            students=[
-                Student(
-                    id=student["id"],
-                    name=student["short_name"],
-                    sortable_name=student["sortable_name"],
-                )
-                for student in section.students
-            ],
-        )
+        return [
+            Section(
+                id=section.id,
+                name=section.name,
+                students=[
+                    Student(
+                        id=student["id"],
+                        name=student["short_name"],
+                        sortable_name=student["sortable_name"],
+                    )
+                    for student in section.students
+                ],
+            )
+            for section in sections
+        ]
 
 
 def academic_year_from_time(time):
