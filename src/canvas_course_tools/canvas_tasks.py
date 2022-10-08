@@ -1,35 +1,36 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import Optional
 
 import dateutil.parser
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 
 
-@dataclass(frozen=True)
+@dataclass
 class Course:
     id: int
     name: str
     course_code: str
     academic_year: str = field(init=False)
     _start: str
+    alias: Optional[str] = None
 
     def __post_init__(self):
         object.__setattr__(self, "academic_year", academic_year_from_time(self._start))
 
 
-@dataclass(frozen=True)
+@dataclass
 class Student:
     id: int
     name: str
     sortable_name: str
 
 
-@dataclass(frozen=True)
+@dataclass
 class Section:
     id: int
     name: str
-    students: List[Student]
+    students: list[Student]
 
 
 class CanvasTasks:
@@ -52,7 +53,15 @@ class CanvasTasks:
             A list of Canvas course objects.
         """
         courses = self.canvas.get_courses()
-        return [self._make_course_object(course) for course in courses]
+        return [
+            Course(
+                id=course.id,
+                name=course.name,
+                course_code=course.course_code,
+                _start=course.start_at,
+            )
+            for course in courses
+        ]
 
     def get_course(self, course_id):
         """Get a Canvas course by id.
@@ -70,26 +79,6 @@ class CanvasTasks:
             course_code=course.course_code,
             _start=course.start_at,
         )
-
-    def _make_course_object(self, canvas_course):
-        """Make a course object from a Canvas Course.
-
-        Build a custom course object with only the fields we actually use and
-        added custom fields like 'academic_year'.
-
-        Args:
-            canvas_course (canvas.Course): a Canvas Course object.
-
-        Returns:
-            dict: a custom course object with fields id, name, course_code and
-                academic_year.
-        """
-        return {
-            "id": canvas_course.id,
-            "name": canvas_course.name,
-            "course_code": canvas_course.course_code,
-            "academic_year": academic_year_from_time(canvas_course.start_at),
-        }
 
     def get_students(self, course_id):
         """Get all students in a course.

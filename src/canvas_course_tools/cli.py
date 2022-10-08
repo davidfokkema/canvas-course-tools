@@ -135,7 +135,7 @@ def list_courses(server_alias, use_codes):
                 if v["server"] == server_alias
             }
             for course in courses:
-                course["alias"] = aliases.get(course["id"], None)
+                course.alias = aliases.get(course.id, None)
             print_courses(courses, use_codes)
     else:
         courses = []
@@ -143,7 +143,8 @@ def list_courses(server_alias, use_codes):
             for alias, course in config["courses"].items():
                 canvas = get_canvas(course["server"])
                 course = canvas.get_course(course["course_id"])
-                courses.append(course | {"alias": alias})
+                course.alias = alias
+                courses.append(course)
             print_courses(courses, use_codes)
         else:
             raise click.UsageError("No courses are registered yet.")
@@ -199,8 +200,7 @@ def print_courses(courses, use_codes):
     table.add_column("Name")
     table.add_column("Year")
     for course in courses:
-        alias = course.get("alias", None)
-        fields = [str(course["id"]), alias, course["name"], course["academic_year"]]
+        fields = [str(course.id), course.alias, course.name, course.academic_year]
         if use_codes:
             fields.insert(1, course["course_code"])
         table.add_row(*fields)
