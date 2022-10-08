@@ -125,6 +125,7 @@ class CanvasTasks:
                 ],
             )
             for section in sections
+            if section.students is not None
         ]
 
 
