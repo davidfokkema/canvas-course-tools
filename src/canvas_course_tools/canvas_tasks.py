@@ -16,7 +16,7 @@ class Course:
     alias: Optional[str] = None
 
     def __post_init__(self):
-        object.__setattr__(self, "academic_year", academic_year_from_time(self._start))
+        self.academic_year = academic_year_from_time(self._start)
 
 
 @dataclass
