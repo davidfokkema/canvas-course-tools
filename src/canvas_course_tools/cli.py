@@ -114,12 +114,9 @@ def courses():
 def list_courses(server_alias, use_codes):
     """List Canvas courses.
 
-    List all canvas courses available at the previously registered server
-    SERVER_ALIAS. Use:
-
-        $ canvas courses list
-
-    to get a list of all available course aliases.
+    Without an argument, list all courses previously registered with an alias.
+    When called with the SERVER_ALIAS argument, list all canvas courses
+    available at that server.
     """
     config = read_config()
     if server_alias:
@@ -164,7 +161,10 @@ def students():
     help="List all students without splitting them into sections.",
 )
 def list_students(course_alias, all):
-    """List students in course COURSE_ALIAS."""
+    """List students in course COURSE_ALIAS.
+
+    Students are split into sections by default.
+    """
     config = read_config()
     server, course_id = (
         config["courses"][course_alias][k] for k in ("server", "course_id")
