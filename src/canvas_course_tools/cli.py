@@ -6,24 +6,17 @@ tool requires no mouse-clicks at all, these tasks are performed much quicker and
 easier than throug the web interface.
 """
 
-import pathlib
-
-import appdirs
 import rich_click as click
-import toml
 from rich import box, print
 from rich.table import Table
 
-from canvas_course_tools import __version__
+from canvas_course_tools import __version__, configfile
 from canvas_course_tools.canvas_tasks import (
     CanvasTasks,
     Forbidden,
     InvalidAccessToken,
     ResourceDoesNotExist,
 )
-
-APP_NAME = "canvas-course-tools"
-CONFIG_FILE = "config.toml"
 
 
 @click.group()
@@ -41,7 +34,7 @@ def servers():
 @servers.command("list")
 def show_servers():
     """List the registered servers."""
-    config = read_config()
+    config = configfile.read_config()
     try:
         servers = config["servers"]
     except KeyError:
@@ -73,26 +66,26 @@ def add_server(alias, url, token, force):
 
         canvas servers add school http://school.example.com/ 123~secret
     """
-    config = read_config()
+    config = configfile.read_config()
     servers = config.setdefault("servers", {})
     if alias in servers and not force:
         print(f"[bold red] Server '{alias}' already exists.[/bold red]")
     else:
         servers[alias] = {"url": url, "token": token}
-        write_config(config)
+        configfile.write_config(config)
 
 
 @servers.command("remove")
 @click.argument("alias", type=str)
 def remove_server(alias):
     """Remove server from configuration."""
-    config = read_config()
+    config = configfile.read_config()
     try:
         del config["servers"][alias]
     except KeyError:
         print(f"[bold red] Unknown server '{alias}'.[/bold red]")
     else:
-        write_config(config)
+        configfile.write_config(config)
         print(f"Server '{alias}' removed.")
 
 
@@ -118,7 +111,7 @@ def list_courses(server_alias, use_codes):
     When called with the SERVER_ALIAS argument, list all canvas courses
     available at that server.
     """
-    config = read_config()
+    config = configfile.read_config()
     if server_alias:
         canvas = get_canvas(server_alias)
         try:
@@ -165,7 +158,7 @@ def list_students(course_alias, all):
 
     Students are split into sections by default.
     """
-    config = read_config()
+    config = configfile.read_config()
     server, course_id = (
         config["courses"][course_alias][k] for k in ("server", "course_id")
     )
@@ -220,7 +213,7 @@ def print_courses(courses, use_codes):
 )
 def add_course(alias, course_id, server_alias, update):
     """Register a course using an alias."""
-    config = read_config()
+    config = configfile.read_config()
     courses = config.setdefault("courses", {})
     if alias in courses and not update:
         print(f"[bold red] Course '{alias}' already exists.[/bold red]")
@@ -241,63 +234,25 @@ def add_course(alias, course_id, server_alias, update):
                 )
             else:
                 courses[alias] = {"server": server_alias, "course_id": course_id}
-                write_config(config)
+                configfile.write_config(config)
 
 
 @courses.command("remove")
 @click.argument("alias", type=str)
 def remove_course(alias):
     """Remove course from configuration."""
-    config = read_config()
+    config = configfile.read_config()
     try:
         del config["courses"][alias]
     except KeyError:
         print(f"[bold red] Unknown course '{alias}'.[/bold red]")
     else:
-        write_config(config)
+        configfile.write_config(config)
         print(f"Course '{alias}' removed.")
 
 
-def read_config():
-    """Read configuration file."""
-    config_path = get_config_path()
-    if config_path.is_file():
-        with open(config_path) as f:
-            return toml.load(f)
-    else:
-        return {}
-
-
-def write_config(config):
-    """Write configuration file.
-
-    Args:
-        config: a dictionary containing the configuration.
-    """
-    create_config_dir()
-    config_path = get_config_path()
-    toml_config = toml.dumps(config)
-    with open(config_path, "w") as f:
-        # separate TOML generation from writing to file, or an exception
-        # generating TOML will result in an empty file
-        f.write(toml_config)
-
-
-def get_config_path():
-    """Get path of configuration file."""
-    config_dir = pathlib.Path(appdirs.user_config_dir(APP_NAME))
-    config_path = config_dir / CONFIG_FILE
-    return config_path
-
-
-def create_config_dir():
-    """Create configuration directory if necessary."""
-    config_path = get_config_path()
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-
-
 def get_canvas(server_alias):
-    config = read_config()
+    config = configfile.read_config()
     try:
         server = config["servers"][server_alias]
     except KeyError:
