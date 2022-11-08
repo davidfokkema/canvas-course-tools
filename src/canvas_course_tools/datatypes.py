@@ -10,12 +10,8 @@ class Course:
     id: int
     name: str
     course_code: str
-    academic_year: str = field(init=False)
-    _start: str
+    term: str
     alias: Optional[str] = None
-
-    def __post_init__(self):
-        self.academic_year = academic_year_from_time(self._start)
 
 
 @dataclass
@@ -39,20 +35,3 @@ class Section:
     id: int
     name: str
     students: list[Student]
-
-
-def academic_year_from_time(time):
-    """Return the academic year from a time string.
-
-    Args:
-        time: a string with a time in ISO format.
-    """
-    try:
-        time = dateutil.parser.isoparse(time)
-    except TypeError:
-        return "Unknown"
-    else:
-        start_year = time.year
-        if time.month < 8:
-            start_year -= 1
-        return f"{start_year}-{start_year + 1}"

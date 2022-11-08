@@ -126,9 +126,9 @@ def print_courses(courses, use_codes):
     if use_codes:
         table.add_column("Course Code")
     table.add_column("Name")
-    table.add_column("Year")
+    table.add_column("Term")
     for course in courses:
-        fields = [str(course.id), course.alias, course.name, course.academic_year]
+        fields = [str(course.id), course.alias, course.name, course.term]
         if use_codes:
             fields.insert(1, course["course_code"])
         table.add_row(*fields)

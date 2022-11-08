@@ -23,13 +23,13 @@ class CanvasTasks:
         Returns:
             A list of Canvas course objects.
         """
-        courses = self.canvas.get_courses()
+        courses = self.canvas.get_courses(include=["term"])
         return [
             Course(
                 id=course.id,
                 name=course.name,
                 course_code=course.course_code,
-                _start=course.start_at,
+                term=course.term["name"],
             )
             for course in courses
         ]
@@ -43,12 +43,12 @@ class CanvasTasks:
         Returns:
             A Canvas course object.
         """
-        course = self.canvas.get_course(course_id)
+        course = self.canvas.get_course(course_id, include=["term"])
         return Course(
             id=course.id,
             name=course.name,
             course_code=course.course_code,
-            _start=course.start_at,
+            term=course.term["name"],
         )
 
     def get_students(self, course_id):
