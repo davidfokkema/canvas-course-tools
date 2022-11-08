@@ -37,6 +37,7 @@ def list_students(course_alias, all):
     else:
         for section in canvas.get_sections(course_id):
             print(f"## {section.name}\n")
+            section.students.sort(key=lambda x: x.sortable_name)
             for student in section.students:
                 print(f"{student.name} ({student.id})")
             print("\n")
