@@ -20,6 +20,7 @@ class Student:
     sortable_name: Optional[str] = None
     first_name: str = field(init=False)
     last_name: str = field(init=False)
+    notes: Optional[str] = None
 
     def __post_init__(self):
         # Parse human names, allowing for underscores to group parts of the name
@@ -34,3 +35,15 @@ class Section:
     id: int
     name: str
     students: list[Student]
+
+
+@dataclass
+class StudentGroup:
+    name: str = ""
+    students: list[Student] = field(default_factory=list)
+
+
+@dataclass
+class GroupList:
+    name: str = ""
+    groups: list[StudentGroup] = field(default_factory=list)

@@ -12,6 +12,7 @@ from canvas_course_tools import __version__
 from canvas_course_tools.courses import courses
 from canvas_course_tools.servers import servers
 from canvas_course_tools.students import students
+from canvas_course_tools.templates import templates
 
 
 @click.group()
@@ -23,6 +24,7 @@ def cli():
 cli.add_command(servers)
 cli.add_command(courses)
 cli.add_command(students)
+cli.add_command(templates)
 
 
 if __name__ == "__main__":
