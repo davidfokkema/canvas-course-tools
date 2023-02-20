@@ -1,0 +1,33 @@
+\documentclass[a4paper,11pt,portrait]{article}
+
+\usepackage[scale=.8]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[encoding,filenameencoding=utf8]{grffile}
+\usepackage{makecell}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\pagestyle{empty}
+
+\begin{document}
+{% for group in groups %}
+\begin{center}
+    \LARGE\textbf{ {{ title -}} }
+\end{center}
+\section*{ {{ group.name }} }
+\noindent
+\begin{enumerate}
+    {% for student_pair in group.students | batch(2) -%}
+    {% for student in student_pair -%}
+    \item {{ student.name }}
+    {% endfor -%}
+    {% if not loop.last -%}
+    \hspace{-2em}\rule{\linewidth}{1pt}
+    {% endif -%}
+    {% endfor %}
+\end{enumerate}
+
+\pagebreak
+{% endfor %}
+\end{document}

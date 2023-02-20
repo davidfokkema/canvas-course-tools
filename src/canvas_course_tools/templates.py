@@ -95,10 +95,10 @@ def render_template(template_name, group_list: GroupList):
         group_list (GroupList): the group list as input for the template
     """
     env = jinja2.Environment(
-        loader=jinja2.PackageLoader("canvas_course_tools", "templates")
+        loader=jinja2.PackageLoader("canvas_course_tools", "templates"),
     )
     try:
-        template = env.get_template(template_name)
+        template = env.get_template(template_name, globals={"zip": zip})
     except jinja2.exceptions.TemplateNotFound:
         raise click.BadArgumentUsage(f"Template {template_name} not found!")
     return template.render(title=group_list.name, groups=group_list.groups)

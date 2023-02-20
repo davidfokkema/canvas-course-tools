@@ -1,0 +1,37 @@
+\documentclass[a4paper,11pt,portrait,twoside]{article}
+
+\usepackage[scale=.8]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[encoding,filenameencoding=utf8]{grffile}
+\usepackage{makecell}
+\usepackage{ltablex}
+\usepackage{booktabs}
+
+\pagestyle{empty}
+
+\begin{document}
+{% for group in groups %}
+\begin{center}
+    \LARGE\textbf{ Toestemming gebruik foto's }
+\end{center}
+
+\noindent
+De foto's zullen \emph{alleen} gebruikt worden voor fotolijsten en \emph{alleen} verspreid worden onder docenten binnen een afgeschermde omgeving (Canvas).
+
+\section*{ {{- group.name -}} }
+\noindent
+\keepXColumns
+\begin{tabularx}{\linewidth}{lX}
+    \toprule
+    \textbf{Naam}                    & \textbf{Handtekening voor akkoord} \\
+    {% for student in group.students -%}
+    \midrule                                                              \\[1em]
+    {{ student.name }} &                                    \\
+    {% endfor -%}
+    \bottomrule
+\end{tabularx}
+
+\cleardoublepage
+{% endfor %}
+\end{document}

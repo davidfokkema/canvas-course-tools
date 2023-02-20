@@ -1,0 +1,40 @@
+\documentclass[a4paper,landscape,11pt]{article}
+
+\usepackage[scale=.8]{geometry}
+\usepackage{fouriernc}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[dutch]{babel}
+
+\usepackage{booktabs}
+
+\setcounter{secnumdepth}{0}
+\pagestyle{empty}
+
+\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+
+{% for feedback_group in groups %}
+
+{\centering\LARGE\textbf{ {{ title -}} }}
+
+\vspace{1em}
+
+\section*{ {{ feedback_group.name }} }
+
+\noindent
+\begin{tabular}{llll}
+    \toprule
+    \textbf{Student} & \textbf{Verslag 1} & \textbf{Verslag 2} & \textbf{Jokerverslag} \\
+    \midrule
+    {% for student in feedback_group.students -%}
+    {% set reports = cycler(*(feedback_group.students[loop.index0+1:] + feedback_group.students[:loop.index0+1])) -%}
+    {% set line = [student.name, reports.next().name, reports.next().name, reports.next().name] -%}
+    {{ line | join(" & ")}} \\
+    {% endfor -%}
+    \bottomrule
+\end{tabular}
+\newpage
+{% endfor %}
+\end{document}
