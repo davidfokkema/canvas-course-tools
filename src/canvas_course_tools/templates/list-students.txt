@@ -1,0 +1,7 @@
+Title: {{ title }}
+{% for group in groups %}
+Group: {{ group.name }}
+{% for student in group.students -%}
+{{ student.first_name }} {{ student.last_name }}
+{% endfor -%}
+{% endfor %}

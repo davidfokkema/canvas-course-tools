@@ -2,9 +2,9 @@ import pathlib
 import re
 
 import click
+import jinja2
 
 from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
-
 
 PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
 
@@ -50,7 +50,8 @@ def render_template(group_list, template):
     """
     file_contents = pathlib.Path(group_list).read_text()
     group_list = parse_group_list(file_contents)
-    print(f"{group_list=}")
+    contents = render_template(template, group_list)
+    click.echo(contents)
 
 
 def parse_group_list(text):
@@ -83,3 +84,17 @@ def parse_group_list(text):
     group_list.groups.append(current_group)
 
     return group_list
+
+
+def render_template(template_name, group_list: GroupList):
+    """Render a template.
+
+    Args:
+        template_name (str): the name of the template
+        group_list (GroupList): the group list as input for the template
+    """
+    env = jinja2.Environment(
+        loader=jinja2.PackageLoader("canvas_course_tools", "templates")
+    )
+    template = env.get_template(f"list-students.txt")
+    return template.render(title=group_list.name, groups=group_list.groups)
