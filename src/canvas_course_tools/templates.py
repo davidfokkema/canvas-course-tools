@@ -97,11 +97,8 @@ def render_template(template_name, group_list: GroupList):
     env = jinja2.Environment(
         loader=jinja2.PackageLoader("canvas_course_tools", "templates")
     )
-    templates_dir = importlib.resources.files("canvas_course_tools") / "templates"
-    # match first template, ignoring file extension
     try:
-        template_path = next(templates_dir.glob(f"{template_name}.*"))
-    except StopIteration:
+        template = env.get_template(template_name)
+    except jinja2.exceptions.TemplateNotFound:
         raise click.BadArgumentUsage(f"Template {template_name} not found!")
-    template = env.get_template(str(template_path.name))
     return template.render(title=group_list.name, groups=group_list.groups)
