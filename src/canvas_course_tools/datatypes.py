@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
-import dateutil.parser
 from nameparser import HumanName
 
 
