@@ -29,18 +29,24 @@ def render_template(group_list, template):
     field. It must be of the form "student name (id) [notes]". For example, the
     following is a valid group list file:
 
+        \b
         # Physics 101
         ## Group A
         Drew Ferrell (800057) [second year]
         Amanda James (379044)
         Antonio Morris (804407) [skips thursdays]
 
+        \b
         ## Group B
         Elizabeth Allison (312702)
         James Morales (379332)
 
     The second argument, TEMPLATE, should be the name of one of the templates
     registered with the app. Use the `list` command to get a list of templates.
+
+    \f
+    Ignore the \b and \f characters in this docstring. They are to tell click to
+    not wrap paragraphs (\b) and not display this note (\f).
     """
     file_contents = pathlib.Path(group_list).read_text()
     group_list = parse_group_list(file_contents)
