@@ -17,12 +17,15 @@ def templates():
 
 
 @templates.command("render")
-@click.argument("group_list")
 @click.argument("template")
-def render_template(group_list, template):
+@click.argument("group_list")
+def render_template(template, group_list):
     """Render a template.
 
-    The first argument, GROUP_LIST, should be a path to a group list file. If a
+    The first argument, TEMPLATE, should be the name of one of the templates
+    registered with the app. Use the `list` command to get a list of templates.
+
+    The second argument, GROUP_LIST, should be a path to a group list file. If a
     file starts with a #-character, the rest of the line is interpreted as a
     title. If it starts with ##, the rest of the line is interpreted as a group
     name. There can be multiple groups defined in one file. All other non-empty
@@ -41,9 +44,6 @@ def render_template(group_list, template):
         ## Group B
         Elizabeth Allison (312702)
         James Morales (379332)
-
-    The second argument, TEMPLATE, should be the name of one of the templates
-    registered with the app. Use the `list` command to get a list of templates.
 
     \f
     Ignore the \b and \f characters in this docstring. They are to tell click to
