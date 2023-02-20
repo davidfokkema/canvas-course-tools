@@ -21,8 +21,6 @@ tomli-w = "^1.0.0"
 tomli = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-black = "^20.8b1"
 ipython = "^7.22.0"
 
 [build-system]
