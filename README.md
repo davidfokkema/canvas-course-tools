@@ -16,6 +16,5 @@ render templates based on the text file. This allows for creating class lists
 (with short notes for each student) and even class lists with photos (if you
 provide photos).
 
-In a next version you'll be able to create Canvas groups based on a group list
-file. We already have that functionality in stand-alone scripts, but it is still
-rough around the edges.
+You can also use this tool to create groups and group sets on Canvas based on a
+group list file.
