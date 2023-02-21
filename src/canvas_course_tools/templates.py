@@ -6,6 +6,8 @@ import click
 import jinja2
 import tomli
 from rich import box, print
+from rich.console import Console
+from rich.syntax import Syntax
 from rich.table import Table
 
 from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
@@ -35,6 +37,28 @@ def list_templates():
             table.add_row(template.name, info.get(template.name, ""))
     print()
     print(table)
+
+
+@templates.command("show")
+@click.argument("template")
+def show_template(template):
+    """Show the contents of a template.
+
+    The argument, TEMPLATE, should be the name of one of the templates
+    registered with the app. Use the `list` command to get a list of templates.
+    """
+    template_files = importlib.resources.files("canvas_course_tools") / "templates"
+    path = template_files / template
+    console = Console()
+
+    if not path.is_file():
+        raise click.BadArgumentUsage(f"Template {template} not found!")
+    elif console.is_terminal:
+        syntax = Syntax.from_path(path)
+        console.print()
+        console.print(syntax)
+    else:
+        print(path.read_text())
 
 
 @templates.command("render")
