@@ -6,7 +6,6 @@
 \usepackage{fouriernc}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[dutch]{babel}
 
 \usepackage{booktabs}
 
@@ -26,12 +25,12 @@
 \section*{ {{ examinator.name }} }
 
 \noindent
-\begin{tabular}{r@{ -- }rl}
+\begin{tabular}{r@{ -- }rll}
     \toprule
-    \multicolumn{2}{l}{\textbf{Tijd}} & \textbf{Student}                                           \\
+    \multicolumn{2}{l}{\textbf{Tijd}} & \textbf{Student} &                          \\
     \midrule
     {% for start, end, student in zip(start_times, end_times, examinator.students) -%}
-    {{ start }} & {{ end }} & {{ student.name }}
+    {{ start }} & {{ end }} & {{ student.name }} & {% if student.notes %}\textsc{[{{ student.notes }}]}{% endif %}
     {%- if loop.index is divisibleby(3) %} \\[5pt] {% else %} \\ {% endif %}
     {%- if loop.index == 6 %}
     12:15                             & 13:00            & \hrulefill \quad pauze \quad \hrulefill \\

@@ -1,9 +1,10 @@
-\documentclass[a4paper,11pt,portrait,twoside]{article}
+\documentclass[a4paper,11pt,twoside]{article}
 
 \usepackage[scale=.8]{geometry}
+\usepackage{fouriernc}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx}
-\usepackage[encoding,filenameencoding=utf8]{grffile}
+\usepackage[T1]{fontenc}
+
 \usepackage{makecell}
 \usepackage{ltablex}
 \usepackage{booktabs}
@@ -13,7 +14,8 @@
 \begin{document}
 {% for group in groups %}
 \begin{center}
-    \LARGE\textbf{ Toestemming gebruik foto's }
+    \LARGE\textbf{ Toestemming gebruik foto's } \\
+    \Large\textbf{ {{ title }} }
 \end{center}
 
 \noindent
@@ -26,8 +28,8 @@ De foto's zullen \emph{alleen} gebruikt worden voor fotolijsten en \emph{alleen}
     \toprule
     \textbf{Naam}                    & \textbf{Handtekening voor akkoord} \\
     {% for student in group.students -%}
-    \midrule                                                              \\[1em]
-    {{ student.name }} &                                    \\
+    \midrule                                                              \\
+    {{ student.name }} &                                    \\[1em]
     {% endfor -%}
     \bottomrule
 \end{tabularx}
