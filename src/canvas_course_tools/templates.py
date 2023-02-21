@@ -4,9 +4,13 @@ import re
 
 import click
 import jinja2
+import tomli
+from rich import box, print
+from rich.table import Table
 
 from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
 
+TEMPLATE_INFO_FILE = "template-info.toml"
 PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
 
 
@@ -14,6 +18,23 @@ PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\]
 def templates():
     """Generate files based on templates and group lists."""
     pass
+
+
+@templates.command("list")
+def list_templates():
+    """List all available templates."""
+    template_files = importlib.resources.files("canvas_course_tools") / "templates"
+    info_file = template_files / TEMPLATE_INFO_FILE
+    info = tomli.loads(info_file.read_text())
+
+    table = Table(box=box.HORIZONTALS)
+    table.add_column("Template")
+    table.add_column("Description")
+    for template in sorted(template_files.iterdir()):
+        if template.is_file() and not template == info_file:
+            table.add_row(template.name, info.get(template.name, ""))
+    print()
+    print(table)
 
 
 @templates.command("render")
