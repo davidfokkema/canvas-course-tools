@@ -17,7 +17,7 @@
 \begin{enumerate}
     {% for student_pair in group.students | batch(2) -%}
     {% for student in student_pair -%}
-    \item {{ student.name }} {% if student.notes %}\textsc{[{{ student.notes }}]}{% endif %}
+    \item {{ student.name }}
     {% endfor -%}
     {% if not loop.last %}
     \hspace{-2em}\rule{\linewidth}{1pt}
