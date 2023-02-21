@@ -1,10 +1,15 @@
 import pathlib
 
 import click
+from rich import print
 from rich.progress import Progress
 
 from canvas_course_tools import configfile
-from canvas_course_tools.canvas_tasks import CanvasObjectExistsError
+from canvas_course_tools.canvas_tasks import (
+    CanvasObjectExistsError,
+    Forbidden,
+    ResourceDoesNotExist,
+)
 from canvas_course_tools.group_lists import parse_group_list
 from canvas_course_tools.utils import get_canvas
 
@@ -55,9 +60,12 @@ def create_canvas_groups(course_alias, group_list, overwrite):
     not wrap paragraphs (\b) and not display this note (\f).
     """
     config = configfile.read_config()
-    server, course_id = (
-        config["courses"][course_alias][k] for k in ("server", "course_id")
-    )
+    try:
+        server, course_id = (
+            config["courses"][course_alias][k] for k in ("server", "course_id")
+        )
+    except KeyError:
+        raise click.BadArgumentUsage(f"Unknown course {course_alias}.")
     canvas = get_canvas(server)
     course = canvas.get_course(course_id)
 
@@ -82,7 +90,14 @@ def create_canvas_groups(course_alias, group_list, overwrite):
             canvas_group = canvas.create_group(group.name, groupset)
             progress.reset(task_students, total=len(group.students))
             for student in group.students:
-                canvas.add_student_to_group(student, canvas_group)
+                try:
+                    canvas.add_student_to_group(student, canvas_group)
+                except ResourceDoesNotExist:
+                    print(f"[red]WARNING: student {student.name} does not exist.")
+                except Forbidden:
+                    print(
+                        f"[red]WARNING: you do not have authorization to add student {student.name}."
+                    )
                 progress.advance(task_students)
             progress.advance(task_groups)
             print(f"Created {group.name}.")

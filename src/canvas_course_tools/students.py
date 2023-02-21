@@ -23,9 +23,12 @@ def list_students(course_alias, all):
     Students are split into sections by default.
     """
     config = configfile.read_config()
-    server, course_id = (
-        config["courses"][course_alias][k] for k in ("server", "course_id")
-    )
+    try:
+        server, course_id = (
+            config["courses"][course_alias][k] for k in ("server", "course_id")
+        )
+    except KeyError:
+        raise click.BadArgumentUsage(f"Unknown course {course_alias}.")
     canvas = get_canvas(server)
     course = canvas.get_course(course_id)
     print(f"# {course.name}\n")
