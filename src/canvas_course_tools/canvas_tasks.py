@@ -134,10 +134,26 @@ class CanvasTasks:
         return GroupSet(id=groupset.id, name=name)
 
     def create_group(self, group_name, group_set):
+        """Create a group inside a GroupSet.
+
+        Args:
+            group_name (str): name of the group to create.
+            group_set (GroupSet): the GroupSet in which the group will be
+                created.
+
+        Returns:
+            Group: the newly created group.
+        """
         groupset = self.canvas.get_group_category(group_set.id)
         group = groupset.create_group(name=group_name)
         return Group(id=group.id, name=group_name)
 
     def add_student_to_group(self, student, group):
+        """Add student to a group.
+
+        Args:
+            student (Student): the student to add to the group.
+            group (Group): the group in which to place the student.
+        """
         canvas_group = self.canvas.get_group(group.id)
         canvas_group.create_membership(student.id)
