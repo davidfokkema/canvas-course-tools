@@ -14,6 +14,18 @@ class Course:
 
 
 @dataclass
+class GroupSet:
+    id: int
+    name: str
+
+
+@dataclass
+class Group:
+    id: int
+    name: str
+
+
+@dataclass
 class Student:
     id: int
     name: str

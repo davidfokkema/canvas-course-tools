@@ -1,7 +1,17 @@
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 
-from canvas_course_tools.datatypes import Course, Section, Student
+from canvas_course_tools.datatypes import (
+    Course,
+    Section,
+    Student,
+    GroupSet,
+    Group,
+)
+
+
+class CanvasObjectExistsError(Exception):
+    pass
 
 
 class CanvasTasks:
@@ -98,3 +108,36 @@ class CanvasTasks:
             for section in sections
             if section.students is not None
         ]
+
+    def create_groupset(self, name, course, overwrite):
+        """Create groupset in course.
+
+        Args:
+            name (string): name of the groupset
+            course (Course): the course in which to create the groupset
+            overwrite (bool): whether or not to overwrite an existing groupset
+
+        Returns:
+            GroupSet: the newly created groupset
+        """
+        canvas_course = self.canvas.get_course(course.id)
+        groupsets = list(canvas_course.get_group_categories())
+        groupset_names = [g.name for g in groupsets]
+        if name in groupset_names:
+            if not overwrite:
+                raise CanvasObjectExistsError("Groupset already exists.")
+            else:
+                for groupset in [g for g in groupsets if g.name == name]:
+                    # we don't expect groupset with the same name, but delete them all in any case
+                    groupset.delete()
+        groupset = canvas_course.create_group_category(name)
+        return GroupSet(id=groupset.id, name=name)
+
+    def create_group(self, group_name, group_set):
+        groupset = self.canvas.get_group_category(group_set.id)
+        group = groupset.create_group(name=group_name)
+        return Group(id=group.id, name=group_name)
+
+    def add_student_to_group(self, student, group):
+        canvas_group = self.canvas.get_group(group.id)
+        canvas_group.create_membership(student.id)

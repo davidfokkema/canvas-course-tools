@@ -10,6 +10,7 @@ import rich_click as click
 
 from canvas_course_tools import __version__
 from canvas_course_tools.courses import courses
+from canvas_course_tools.groups import groups
 from canvas_course_tools.servers import servers
 from canvas_course_tools.students import students
 from canvas_course_tools.templates import templates
@@ -25,6 +26,7 @@ cli.add_command(servers)
 cli.add_command(courses)
 cli.add_command(students)
 cli.add_command(templates)
+cli.add_command(groups)
 
 
 if __name__ == "__main__":
