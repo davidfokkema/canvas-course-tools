@@ -76,7 +76,7 @@ def create_canvas_groups(course_alias, group_list, overwrite):
         task_groups = progress.add_task(
             description="Creating groups...", total=len(group_list.groups)
         )
-        task_students = progress.add_task(description="Adding students...")
+        task_students = progress.add_task(description="Adding students to group...")
 
         for group in group_list.groups:
             canvas_group = canvas.create_group(group.name, groupset)
@@ -85,5 +85,6 @@ def create_canvas_groups(course_alias, group_list, overwrite):
                 canvas.add_student_to_group(student, canvas_group)
                 progress.advance(task_students)
             progress.advance(task_groups)
+            print(f"Created {group.name}.")
 
     print("Done")
