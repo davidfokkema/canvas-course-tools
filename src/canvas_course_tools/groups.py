@@ -1,14 +1,11 @@
 import pathlib
-import itertools
-import re
-from pathlib import Path
 
 import click
 
 from canvas_course_tools import configfile
-from canvas_course_tools.utils import get_canvas
-from canvas_course_tools.group_lists import parse_group_list
 from canvas_course_tools.canvas_tasks import CanvasObjectExistsError
+from canvas_course_tools.group_lists import parse_group_list
+from canvas_course_tools.utils import get_canvas
 
 
 @click.group()
