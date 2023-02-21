@@ -1,6 +1,5 @@
 import importlib.resources
 import pathlib
-import re
 
 import click
 import jinja2
@@ -10,10 +9,10 @@ from rich.console import Console
 from rich.syntax import Syntax
 from rich.table import Table
 
-from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
+from canvas_course_tools.datatypes import GroupList
+from canvas_course_tools.group_lists import parse_group_list
 
 TEMPLATE_INFO_FILE = "template-info.toml"
-PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
 
 
 @click.group()
@@ -165,38 +164,6 @@ def build_output_path(file, output_dir, template, group_list):
         filepath = pathlib.Path(filename).with_suffix(template_path.suffix)
         path = output_dir / filepath
     return path
-
-
-def parse_group_list(text):
-    """Parse text and build a group list."""
-    group_list = GroupList()
-    current_group = StudentGroup()
-
-    for line in text.splitlines():
-        if not line:
-            # empty line
-            continue
-        elif line.startswith("##"):
-            # new group name
-            group_name = line.removeprefix("##").strip()
-            if current_group.students:
-                # there are students in the current group, add them to the list
-                group_list.groups.append(current_group)
-            # create new group
-            current_group = StudentGroup(name=group_name)
-        elif line.startswith("#"):
-            # group list name
-            group_list.name = line.removeprefix("#").strip()
-        else:
-            # must be a student
-            match = PARSE_STUDENT_RE.match(line)
-            if match:
-                current_group.students.append(
-                    Student(name=match["name"], id=match["id"], notes=match["notes"])
-                )
-    group_list.groups.append(current_group)
-
-    return group_list
 
 
 def render_template(template_name, group_list: GroupList):
