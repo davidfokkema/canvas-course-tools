@@ -98,7 +98,15 @@ def render_template(template, group_list):
     file_contents = pathlib.Path(group_list).read_text()
     group_list = parse_group_list(file_contents)
     contents = render_template(template, group_list)
-    click.echo(contents)
+
+    console = Console()
+    if console.is_terminal:
+        filetype = pathlib.Path(template).suffix.lstrip(".")
+        syntax = Syntax(contents, lexer=filetype)
+        console.print()
+        console.print(syntax)
+    else:
+        print(contents)
 
 
 def parse_group_list(text):
