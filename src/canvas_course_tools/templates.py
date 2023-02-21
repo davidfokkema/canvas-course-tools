@@ -90,7 +90,7 @@ def render_template(template, group_list, file, auto_write, output_dir):
     to get a list of included templates.
 
     The second argument, GROUP_LIST, should be a path to a group list file. If a
-    file starts with a #-character, the rest of the line is interpreted as a
+    line starts with a #-character, the rest of the line is interpreted as a
     title. If it starts with ##, the rest of the line is interpreted as a group
     name. There can be multiple groups defined in one file. All other non-empty
     lines are interpreted as a student name with optional student id and notes

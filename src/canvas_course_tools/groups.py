@@ -18,15 +18,41 @@ def groups():
 @click.argument("course_alias")
 @click.argument("group_list")
 @click.option(
-    "--groupset", "groupset_name", required=True, help="Name of the groupset to create."
-)
-@click.option(
     "--overwrite/--no-overwrite",
     default=False,
     help="Whether or not to overwrite an existing groupset.",
 )
-def create_canvas_groups(course_alias, group_list, groupset_name, overwrite):
-    """Create canvas groups."""
+def create_canvas_groups(course_alias, group_list, overwrite):
+    """Create canvas groups.
+
+    Create canvas groups in course COURSE_ALIAS based on the group list defined
+    in GROUP_LIST. The groups will be placed in GroupSet named after the title
+    in the group list file.
+
+    The GROUP_LIST argument should be a path to a group list file. If a line
+    starts with a #-character, the rest of the line is interpreted as a title.
+    If it starts with ##, the rest of the line is interpreted as a group name.
+    There can be multiple groups defined in one file. All other non-empty lines
+    are interpreted as a student name with optional student id and notes field.
+    It must be of the form "student name (id) [notes]". For example, the
+    following is a valid group list file:
+
+        \b
+        # Physics 101
+        ## Group A
+        Drew Ferrell (800057) [second year]
+        Amanda James (379044)
+        Antonio Morris (804407) [skips thursdays]
+
+        \b
+        ## Group B
+        Elizabeth Allison (312702)
+        James Morales (379332)
+
+    \f
+    Ignore the \b and \f characters in this docstring. They are to tell click to
+    not wrap paragraphs (\b) and not display this note (\f).
+    """
     config = configfile.read_config()
     server, course_id = (
         config["courses"][course_alias][k] for k in ("server", "course_id")
@@ -38,9 +64,11 @@ def create_canvas_groups(course_alias, group_list, groupset_name, overwrite):
     group_list = parse_group_list(file_contents)
 
     try:
-        groupset = canvas.create_groupset(groupset_name, course, overwrite)
+        groupset = canvas.create_groupset(group_list.name, course, overwrite)
     except CanvasObjectExistsError:
-        raise click.BadArgumentUsage(f"Canvas groupset {groupset_name} already exists.")
+        raise click.BadArgumentUsage(
+            f"Canvas groupset '{group_list.name}' already exists. You can use --overwrite."
+        )
 
     for group in group_list.groups:
         canvas_group = canvas.create_group(group.name, groupset)
