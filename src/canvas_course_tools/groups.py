@@ -1,6 +1,7 @@
 import pathlib
 
 import click
+from rich.progress import Progress
 
 from canvas_course_tools import configfile
 from canvas_course_tools.canvas_tasks import CanvasObjectExistsError
@@ -63,6 +64,7 @@ def create_canvas_groups(course_alias, group_list, overwrite):
     file_contents = pathlib.Path(group_list).read_text()
     group_list = parse_group_list(file_contents)
 
+    print(f"Creating GroupSet {group_list.name}...")
     try:
         groupset = canvas.create_groupset(group_list.name, course, overwrite)
     except CanvasObjectExistsError:
@@ -70,7 +72,18 @@ def create_canvas_groups(course_alias, group_list, overwrite):
             f"Canvas groupset '{group_list.name}' already exists. You can use --overwrite."
         )
 
-    for group in group_list.groups:
-        canvas_group = canvas.create_group(group.name, groupset)
-        for student in group.students:
-            canvas.add_student_to_group(student, canvas_group)
+    with Progress() as progress:
+        task_groups = progress.add_task(
+            description="Creating groups...", total=len(group_list.groups)
+        )
+        task_students = progress.add_task(description="Adding students...")
+
+        for group in group_list.groups:
+            canvas_group = canvas.create_group(group.name, groupset)
+            progress.reset(task_students, total=len(group.students))
+            for student in group.students:
+                canvas.add_student_to_group(student, canvas_group)
+                progress.advance(task_students)
+            progress.advance(task_groups)
+
+    print("Done")
