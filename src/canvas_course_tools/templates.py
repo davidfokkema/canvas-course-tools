@@ -5,7 +5,7 @@ import re
 import click
 import jinja2
 import tomli
-from rich import box, print
+from rich import box
 from rich.console import Console
 from rich.syntax import Syntax
 from rich.table import Table
@@ -35,8 +35,9 @@ def list_templates():
     for template in sorted(template_files.iterdir()):
         if template.is_file() and not template == info_file:
             table.add_row(template.name, info.get(template.name, ""))
-    print()
-    print(table)
+    console = Console()
+    console.print()
+    console.print(table)
 
 
 @templates.command("show")
