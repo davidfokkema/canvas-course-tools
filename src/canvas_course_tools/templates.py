@@ -68,7 +68,8 @@ def render_template(template, group_list):
     """Render a template.
 
     The first argument, TEMPLATE, should be the name of one of the templates
-    registered with the app. Use the `list` command to get a list of templates.
+    registered with the app or a path of a template file. Use the `list` command
+    to get a list of included templates.
 
     The second argument, GROUP_LIST, should be a path to a group list file. If a
     file starts with a #-character, the rest of the line is interpreted as a
@@ -136,12 +137,16 @@ def render_template(template_name, group_list: GroupList):
     """Render a template.
 
     Args:
-        template_name (str): the name of the template
+        template_name (str): the name of the template or a path to a template
+            file.
         group_list (GroupList): the group list as input for the template
     """
-    env = jinja2.Environment(
-        loader=jinja2.PackageLoader("canvas_course_tools", "templates"),
-    )
+    if pathlib.Path(template_name).is_file():
+        env = jinja2.Environment(loader=jinja2.FileSystemLoader("."))
+    else:
+        env = jinja2.Environment(
+            loader=jinja2.PackageLoader("canvas_course_tools", "templates"),
+        )
     try:
         template = env.get_template(template_name, globals={"zip": zip})
     except jinja2.exceptions.TemplateNotFound:
