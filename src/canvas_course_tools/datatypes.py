@@ -1,3 +1,4 @@
+import pathlib
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -33,6 +34,7 @@ class Student:
     first_name: str = field(init=False)
     last_name: str = field(init=False)
     notes: Optional[str] = None
+    photo: Optional[pathlib.Path] = None
 
     def __post_init__(self):
         # Parse human names, allowing for underscores to group parts of the name

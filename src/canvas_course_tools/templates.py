@@ -83,7 +83,16 @@ def show_template(template):
     "output_dir",
     help="Write output to a file relative to this directory.",
 )
-def render_template(template, group_list, file, auto_write, output_dir):
+@click.option(
+    "-p",
+    "--photos",
+    "photo_dir",
+    type=click.Path(
+        file_okay=False, dir_okay=True, exists=True, path_type=pathlib.Path
+    ),
+    help="Search matching photos in this directory.",
+)
+def render_template(template, group_list, file, auto_write, output_dir, photo_dir):
     """Render a template.
 
     The first argument, TEMPLATE, should be the name of one of the templates
@@ -110,12 +119,18 @@ def render_template(template, group_list, file, auto_write, output_dir):
         Elizabeth Allison (312702)
         James Morales (379332)
 
+    If the --photos option is given on the command line, for each student a
+    matching photo is looked up in this directory. The name of the file should
+    match the full name of the student *exactly*. E.g. "Drew Ferrel.jpg" for the
+    first student in the example group list file. The extension does not matter
+    and is passed as is to the template.
+
     \f
     Ignore the \b and \f characters in this docstring. They are to tell click to
     not wrap paragraphs (\b) and not display this note (\f).
     """
     file_contents = pathlib.Path(group_list).read_text()
-    group_list_data = parse_group_list(file_contents)
+    group_list_data = parse_group_list(file_contents, photo_dir)
     contents = render_template(template, group_list_data)
 
     if not file and not auto_write:
