@@ -1,0 +1,44 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[scale=.9]{geometry}
+\usepackage{fouriernc}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage[encoding,filenameencoding=utf8]{grffile}
+\usepackage{tabularx}
+\usepackage{makecell}
+
+\pagestyle{empty}
+
+\begin{document}
+{% for group in groups %}
+\begin{center}
+    \LARGE\textbf{ {{ title -}} }
+\end{center}
+\section*{ {{ group.name }} }
+{% for page in group.students | batch(16) %}
+\noindent
+\begin{tabularx}{\linewidth}{@{}XXXX@{}}
+    {% for rows in page|batch(4) %}
+    {% for student in rows %}
+    {% if student.photo %}
+    \makecell{\makecell[t]{\includegraphics[width=3.5cm]{ {{- student.photo -}} } \\ \textbf{ {{ student.first_name }} } } \rotatebox{90}{ {{ student.last_name }} }}
+    {% else %}
+    \makecell{\makecell[t]{\begin{tikzpicture}
+        \clip (-1.75cm, 0) rectangle +(3.5cm, 4.7cm);
+        \fill[black!10!white] (0, 0) ellipse (1.75cm and 1.25cm);
+        \fill[black!10!white] (0, 2.25cm) circle (1cm);
+    \end{tikzpicture} \\ \textbf{ {{ student.first_name }} } } \rotatebox{90}{ {{ student.last_name }} }}
+    {% endif %}
+    {{ " & " if not loop.last }}
+    {% endfor %}
+    \\[3cm]
+    {% endfor %}
+\end{tabularx}
+\pagebreak
+{% endfor %}
+{% endfor %}
+\end{document}
