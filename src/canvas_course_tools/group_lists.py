@@ -35,7 +35,7 @@ def parse_group_list(text, photo_dir=None, relative_to=None):
             if match:
                 if photo_dir:
                     photo = find_photo(match["name"], photo_dir)
-                    if relative_to is not None:
+                    if photo and relative_to is not None:
                         photo = pathlib.Path(os.path.relpath(photo, start=relative_to))
                 else:
                     photo = None

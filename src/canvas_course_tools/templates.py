@@ -133,11 +133,12 @@ def render_template(template, group_list, file, auto_write, output_dir, photo_di
 
     if file or auto_write:
         output_path = build_output_path(file, output_dir, template, group_list)
+        relative_to = output_path.parent
     else:
-        output_path = None
+        relative_to = None
 
     group_list_data = parse_group_list(
-        file_contents, photo_dir, relative_to=output_path.parent
+        file_contents, photo_dir, relative_to=relative_to
     )
     contents = render_template(template, group_list_data)
 
