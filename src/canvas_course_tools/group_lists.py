@@ -1,3 +1,5 @@
+import os.path
+import pathlib
 import re
 
 from rich.console import Console
@@ -7,7 +9,7 @@ from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
 PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
 
 
-def parse_group_list(text, photo_dir=None):
+def parse_group_list(text, photo_dir=None, relative_to=None):
     """Parse text and build a group list."""
     group_list = GroupList()
     current_group = StudentGroup()
@@ -33,6 +35,8 @@ def parse_group_list(text, photo_dir=None):
             if match:
                 if photo_dir:
                     photo = find_photo(match["name"], photo_dir)
+                    if relative_to is not None:
+                        photo = pathlib.Path(os.path.relpath(photo, start=relative_to))
                 else:
                     photo = None
                 current_group.students.append(

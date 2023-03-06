@@ -130,7 +130,15 @@ def render_template(template, group_list, file, auto_write, output_dir, photo_di
     not wrap paragraphs (\b) and not display this note (\f).
     """
     file_contents = pathlib.Path(group_list).read_text()
-    group_list_data = parse_group_list(file_contents, photo_dir)
+
+    if file or auto_write:
+        output_path = build_output_path(file, output_dir, template, group_list)
+    else:
+        output_path = None
+
+    group_list_data = parse_group_list(
+        file_contents, photo_dir, relative_to=output_path.parent
+    )
     contents = render_template(template, group_list_data)
 
     if not file and not auto_write:
@@ -144,12 +152,13 @@ def render_template(template, group_list, file, auto_write, output_dir, photo_di
         else:
             print(contents)
     else:
-        path = build_output_path(file, output_dir, template, group_list)
-        print(f"Writing template output to {path}...")
+        print(f"Writing template output to {output_path}...")
         try:
-            path.write_text(contents)
+            output_path.write_text(contents)
         except FileNotFoundError:
-            raise click.BadArgumentUsage(f"Output file {path} cannot be created.")
+            raise click.BadArgumentUsage(
+                f"Output file {output_path} cannot be created."
+            )
 
 
 def build_output_path(file, output_dir, template, group_list):
