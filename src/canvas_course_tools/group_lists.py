@@ -1,6 +1,8 @@
+import itertools
 import os.path
 import pathlib
 import re
+import unicodedata
 
 from rich.console import Console
 
@@ -60,7 +62,10 @@ def find_photo(name, photo_dir):
         photo_dir (pathlib.Path): Path to a directory with photos.
     """
     try:
-        return next(photo_dir.glob(name + ".*"))
+        pattern = name + ".*"
+        nfc = unicodedata.normalize("NFC", pattern)
+        nfd = unicodedata.normalize("NFD", pattern)
+        return next(itertools.chain(photo_dir.glob(nfc), photo_dir.glob(nfd)))
     except StopIteration:
         console = Console(stderr=True)
         console.print(f"[red]WARNING: no photo found for {name}.")
