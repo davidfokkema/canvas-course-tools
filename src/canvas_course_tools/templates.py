@@ -145,6 +145,7 @@ def render_template(template, group_list, file, auto_write, output_dir, photo_di
             print(contents)
     else:
         path = build_output_path(file, output_dir, template, group_list)
+        print(f"Writing template output to {path}...")
         try:
             path.write_text(contents)
         except FileNotFoundError:
