@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 from rich import box, print
 from rich.table import Table
 

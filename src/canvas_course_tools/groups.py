@@ -1,6 +1,6 @@
 import pathlib
 
-import click
+import rich_click as click
 from rich import print
 from rich.progress import Progress
 

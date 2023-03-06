@@ -1,4 +1,4 @@
-import click
+import rich_click as click
 
 from canvas_course_tools import configfile
 from canvas_course_tools.utils import get_canvas
