@@ -2,8 +2,6 @@ import pathlib
 from dataclasses import dataclass, field
 from typing import Optional
 
-from nameparser import HumanName
-
 
 @dataclass
 class Course:
@@ -38,9 +36,8 @@ class Student:
 
     def __post_init__(self):
         # Parse human names, allowing for underscores to group parts of the name
-        name = HumanName(self.name)
-        self.first_name = " ".join([name.first, name.middle]).rstrip()
-        self.last_name = name.last.replace("_", " ")
+        self.first_name, _, self.last_name = self.name.partition(" ")
+        self.first_name = self.first_name.replace("_", " ")
         self.name = self.name.replace("_", " ")
 
 

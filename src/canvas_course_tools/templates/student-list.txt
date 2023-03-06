@@ -2,6 +2,6 @@ Title: {{ title }}
 {% for group in groups %}
 Group: {{ group.name }}
 {% for student in group.students -%}
-{{ student.first_name }} {{ student.last_name }} {% if student.notes %}[Note: {{ student.notes }}]{% endif %}
+{{ student.first_name }} / {{ student.last_name }} {% if student.notes %}[Note: {{ student.notes }}]{% endif %}
 {% endfor -%}
 {% endfor %}

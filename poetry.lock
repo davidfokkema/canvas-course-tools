@@ -294,18 +294,6 @@ files = [
 traitlets = "*"
 
 [[package]]
-name = "nameparser"
-version = "1.1.1"
-description = "A simple Python module for parsing human names into their individual components."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "nameparser-1.1.1-py2.py3-none-any.whl", hash = "sha256:8166a5cbce24e31d33219c64e7235b1096904224c95a09948bb9809c4bf56b28"},
-    {file = "nameparser-1.1.1.tar.gz", hash = "sha256:ce8336ed7464fa7b9b8745f48b9c62dea6bed931b99715ca9479360544992143"},
-]
-
-[[package]]
 name = "parso"
 version = "0.8.3"
 description = "A Python Parser"
@@ -578,4 +566,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "cc2fb883a5d48555888487546effc440ab26d74a87837c3c2cc15f049855d711"
+content-hash = "8f853196613b66195640c304cb1ba2a08155ace55e989a1e73466f5c86c41123"
