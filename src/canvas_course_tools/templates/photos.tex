@@ -24,15 +24,21 @@
 \begin{tabularx}{\linewidth}{@{}XXXX@{}}
     {% for rows in page|batch(4) %}
     {% for student in rows %}
-    {% if student.photo %}
-    \makecell{\makecell[t]{\includegraphics[width=3.5cm]{ {{- student.photo -}} } \\ \textbf{ {{ student.first_name }} } } \rotatebox{90}{ {{ student.last_name }} }}
-    {% else %}
-    \makecell{\makecell[t]{\begin{tikzpicture}
-        \clip (-1.75cm, 0) rectangle +(3.5cm, 4.7cm);
-        \fill[black!10!white] (0, 0) ellipse (1.75cm and 1.25cm);
-        \fill[black!10!white] (0, 2.25cm) circle (1cm);
-    \end{tikzpicture} \\ \textbf{ {{ student.first_name }} } } \rotatebox{90}{ {{ student.last_name }} }}
-    {% endif %}
+    \makecell{
+        \makecell[t]{
+            {%- if student.photo %}
+            \includegraphics[width=3.5cm]{ {{- student.photo -}} }
+            {%- else %}
+            \begin{tikzpicture}
+                \clip (-1.75cm, 0) rectangle +(3.5cm, 4.7cm);
+                \fill[black!10!white] (0, 0) ellipse (1.75cm and 1.25cm);
+                \fill[black!10!white] (0, 2.25cm) circle (1cm);
+            \end{tikzpicture}
+            {%- endif %} \\
+            \textbf{ {{ student.first_name }} } \\
+            {\small {{ student.notes if student.notes else "{}" }} }
+        } \rotatebox{90}{ {{ student.last_name }} }
+    }
     {{ " & " if not loop.last }}
     {% endfor %}
     \\[3cm]
