@@ -155,7 +155,7 @@ def render(template, group_list, file, auto_write, output_dir, photo_dir):
     else:
         print(f"Writing template output to {output_path}...")
         try:
-            output_path.write_text(contents)
+            output_path.write_text(contents, encoding="utf-8")
         except FileNotFoundError:
             raise click.BadArgumentUsage(
                 f"Output file {output_path} cannot be created."
