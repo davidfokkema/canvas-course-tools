@@ -69,7 +69,7 @@ def create_canvas_groups(course_alias, group_list, overwrite):
     canvas = get_canvas(server)
     course = canvas.get_course(course_id)
 
-    file_contents = pathlib.Path(group_list).read_text()
+    file_contents = pathlib.Path(group_list).read_text(encoding="utf-8")
     group_list = parse_group_list(file_contents)
 
     print(f"Creating GroupSet {group_list.name}...")

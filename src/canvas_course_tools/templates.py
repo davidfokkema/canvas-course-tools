@@ -27,7 +27,7 @@ def list_templates():
     """List all available templates."""
     template_files = importlib.resources.files("canvas_course_tools") / "templates"
     info_file = template_files / TEMPLATE_INFO_FILE
-    info = tomli.loads(info_file.read_text())
+    info = tomli.loads(info_file.read_text(encoding="utf-8"))
 
     table = Table(box=box.HORIZONTALS)
     table.add_column("Template")
@@ -59,10 +59,10 @@ def show_template(template):
         console.print()
         console.print(syntax)
     else:
-        print(path.read_text())
+        print(path.read_text(encoding="utf-8"))
 
 
-@templates.command("render")
+@templates.command()
 @click.argument("template")
 @click.argument("group_list")
 @click.option(
@@ -92,7 +92,7 @@ def show_template(template):
     ),
     help="Search matching photos in this directory.",
 )
-def render_template(template, group_list, file, auto_write, output_dir, photo_dir):
+def render(template, group_list, file, auto_write, output_dir, photo_dir):
     """Render a template.
 
     The first argument, TEMPLATE, should be the name of one of the templates
@@ -129,7 +129,7 @@ def render_template(template, group_list, file, auto_write, output_dir, photo_di
     Ignore the \b and \f characters in this docstring. They are to tell click to
     not wrap paragraphs (\b) and not display this note (\f).
     """
-    file_contents = pathlib.Path(group_list).read_text()
+    file_contents = pathlib.Path(group_list).read_text(encoding="utf-8")
 
     if file or auto_write:
         output_path = build_output_path(file, output_dir, template, group_list)
