@@ -1,8 +1,8 @@
 import importlib.resources
 import pathlib
 
-import rich_click as click
 import jinja2
+import rich_click as click
 import tomli
 from rich import box
 from rich.console import Console
@@ -11,7 +11,6 @@ from rich.table import Table
 
 from canvas_course_tools.datatypes import GroupList
 from canvas_course_tools.group_lists import parse_group_list
-
 
 TEMPLATE_INFO_FILE = "template-info.toml"
 
@@ -106,6 +105,8 @@ def render(template, group_list, file, auto_write, output_dir, photo_dir):
     lines are interpreted as a student name with optional student id and notes
     field. It must be of the form "student name (id) [notes]". For example, the
     following is a valid group list file:
+
+
 
     \b
         # Physics 101

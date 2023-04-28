@@ -43,14 +43,16 @@ def create_canvas_groups(course_alias, group_list, overwrite):
     It must be of the form "student name (id) [notes]". For example, the
     following is a valid group list file:
 
-        \b
+
+
+    \b
         # Physics 101
         ## Group A
         Drew Ferrell (800057) [second year]
         Amanda James (379044)
         Antonio Morris (804407) [skips thursdays]
 
-        \b
+    \b
         ## Group B
         Elizabeth Allison (312702)
         James Morales (379332)
