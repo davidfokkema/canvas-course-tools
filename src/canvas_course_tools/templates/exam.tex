@@ -1,5 +1,5 @@
-{% set start_times = ["9:00", "9:35", "10:10", "10:45", "11:20", "11:55", "13:00", "13:35", "14:10", "14:45"] %}
-{% set end_times = ["9:20", "9:55", "10:30", "11:05", "11:40", "12:15", "13:20", "13:55", "14:30", "15:05"] %}
+{% set start_times = ["9:00", "9:35", "10:10", "10:45", "11:20", "11:55", "13:00", "13:35", "14:10", "14:45", "15:20", "15:55"] %}
+{% set end_times = ["9:20", "9:55", "10:30", "11:05", "11:40", "12:15", "13:20", "13:55", "14:30", "15:05", "15:40", "16:15"] %}
 \documentclass[a4paper,11pt]{article}
 
 \usepackage[scale=.8]{geometry}
@@ -18,7 +18,7 @@
 
 {% for examinator in groups %}
 
-{\centering\LARGE\textbf{Indeling {{ title -}} }}
+{\centering\LARGE\textbf{ {{ title -}} }}
 
 \vspace{1em}
 
@@ -32,9 +32,6 @@
     {% for start, end, student in zip(start_times, end_times, examinator.students) -%}
     {{ start }} & {{ end }} & {{ student.name }} & {% if student.notes %}\textsc{[{{ student.notes }}]}{% endif %}
     {%- if loop.index is divisibleby(3) %} \\[5pt] {% else %} \\ {% endif %}
-    {%- if loop.index == 6 %}
-    12:15                             & 13:00            & \hrulefill \quad pauze \quad \hrulefill \\
-    {%- endif %}
     {% endfor %}
     \bottomrule
 \end{tabular}
