@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "canvas-course-tools"
-version = "0.5.2"
+version = "0.6.0"
 homepage = "https://github.com/davidfokkema/canvas-course-tools"
 description = "Canvas course tools"
 authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
@@ -34,6 +34,7 @@ rich-click = "^1.5.2"
 jinja2 = "^3.1.2"
 tomli-w = "^1.0.0"
 tomli = "^2.0.1"
+trogon = "^0.2.1"
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.13.2"

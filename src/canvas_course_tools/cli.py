@@ -7,6 +7,7 @@ easier than through the web interface.
 """
 
 import rich_click as click
+import trogon
 
 from canvas_course_tools import __version__
 from canvas_course_tools.courses import courses
@@ -16,6 +17,7 @@ from canvas_course_tools.students import students
 from canvas_course_tools.templates import templates
 
 
+@trogon.tui()
 @click.group()
 @click.version_option(version=__version__)
 def cli():
