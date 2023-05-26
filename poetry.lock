@@ -783,14 +783,14 @@ test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
 name = "trogon"
-version = "0.2.1"
-description = "Automatically generate a Textual TUI for your Cick CLI"
+version = "0.4.0"
+description = "Automatically generate a Textual TUI for your Click CLI"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "trogon-0.2.1-py3-none-any.whl", hash = "sha256:f7c91e226af3f8404d2d2e93ce0838464baea25553efafeb006391f5db458f2c"},
-    {file = "trogon-0.2.1.tar.gz", hash = "sha256:874e6760e7147ecfbc4d1db45eaafc202ef455f23f46f9115ba19accc40729dd"},
+    {file = "trogon-0.4.0-py3-none-any.whl", hash = "sha256:65fadb5bc25dbd3a2e2f49235fb16735f7b822e24d88b5c68980bb38e1124f99"},
+    {file = "trogon-0.4.0.tar.gz", hash = "sha256:b87736dfebf011e7b7c541e30105d2ecc0ed09fb0b874d4fa09a6416fa83db34"},
 ]
 
 [package.dependencies]
@@ -873,4 +873,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "e43da7f2c9f2df6fb76562209db530ef013669beb4f28e701d51b5bc481660b0"
+content-hash = "87b7789bebe3a2eb80d46236f12889ef045fa107b1007c98308a8b1d270ca20f"
