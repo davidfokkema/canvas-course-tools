@@ -27,7 +27,7 @@
     \makecell{
         \makecell[t]{
             {%- if student.photo %}
-            \includegraphics[width=3.5cm]{ {{- student.photo -}} }
+            \includegraphics[width=3.5cm]{ {{- student.photo.as_posix() -}} }
             {%- else %}
             \begin{tikzpicture}
                 \clip (-1.75cm, 0) rectangle +(3.5cm, 4.7cm);
