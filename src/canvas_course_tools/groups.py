@@ -4,14 +4,13 @@ import rich_click as click
 from rich import print
 from rich.progress import Progress
 
-from canvas_course_tools import configfile
 from canvas_course_tools.canvas_tasks import (
     CanvasObjectExistsError,
     Forbidden,
     ResourceDoesNotExist,
 )
 from canvas_course_tools.group_lists import parse_group_list
-from canvas_course_tools.utils import get_canvas
+from canvas_course_tools.utils import find_course
 
 
 @click.group()
@@ -61,15 +60,7 @@ def create_canvas_groups(course_alias, group_list, overwrite):
     Ignore the \b and \f characters in this docstring. They are to tell click to
     not wrap paragraphs (\b) and not display this note (\f).
     """
-    config = configfile.read_config()
-    try:
-        server, course_id = (
-            config["courses"][course_alias][k] for k in ("server", "course_id")
-        )
-    except KeyError:
-        raise click.BadArgumentUsage(f"Unknown course {course_alias}.")
-    canvas = get_canvas(server)
-    course = canvas.get_course(course_id)
+    canvas, course = find_course(course_alias)
 
     file_contents = pathlib.Path(group_list).read_text(encoding="utf-8")
     group_list = parse_group_list(file_contents)
@@ -105,3 +96,21 @@ def create_canvas_groups(course_alias, group_list, overwrite):
             print(f"Created {group.name}.")
 
     print("Done")
+
+
+@groups.command("list")
+@click.argument("course_alias")
+def list_groups(course_alias: str) -> None:
+    """List all groups and groupsets in a course.
+
+    List all groups in course COURSE_ALIAS, for all group sets (a.k.a. group
+    categories). Each group set also lists the group set ID in brackets. This
+    can be useful if you want to list all students in a group set. See also the
+    `canvas students` command group.
+    """
+    canvas, course = find_course(course_alias)
+    for group_set in canvas.list_groupsets(course):
+        print(f"{group_set.name} ({group_set.id}):")
+        for group in canvas.list_groups(group_set):
+            print(f"\t{group.name}")
+        print()

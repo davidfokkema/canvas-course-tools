@@ -1,6 +1,7 @@
 import pathlib
 from dataclasses import dataclass, field
-from typing import Optional
+
+import canvasapi
 
 
 @dataclass
@@ -9,30 +10,33 @@ class Course:
     name: str
     course_code: str
     term: str
-    alias: Optional[str] = None
+    alias: str | None = None
+    _course: canvasapi.course.Course | None = field(default=None, repr=False)
 
 
 @dataclass
 class GroupSet:
     id: int
     name: str
+    _group_set: canvasapi.group.GroupCategory | None = field(default=None, repr=False)
 
 
 @dataclass
 class Group:
     id: int
     name: str
+    _group: canvasapi.group.Group | None = field(default=None, repr=False)
 
 
 @dataclass
 class Student:
     id: int
     name: str
-    sortable_name: Optional[str] = None
+    sortable_name: str | None = None
     first_name: str = field(init=False)
     last_name: str = field(init=False)
-    notes: Optional[str] = None
-    photo: Optional[pathlib.Path] = None
+    notes: str | None = None
+    photo: pathlib.Path | None = None
 
     def __post_init__(self):
         # Parse human names, allowing for underscores to group parts of the name

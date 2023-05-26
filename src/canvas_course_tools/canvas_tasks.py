@@ -1,13 +1,8 @@
+import canvasapi
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 
-from canvas_course_tools.datatypes import (
-    Course,
-    Section,
-    Student,
-    GroupSet,
-    Group,
-)
+from canvas_course_tools.datatypes import Course, Group, GroupSet, Section, Student
 
 
 class CanvasObjectExistsError(Exception):
@@ -34,15 +29,7 @@ class CanvasTasks:
             A list of Canvas course objects.
         """
         courses = self.canvas.get_courses(include=["term"])
-        return [
-            Course(
-                id=course.id,
-                name=course.name,
-                course_code=course.course_code,
-                term=course.term["name"],
-            )
-            for course in courses
-        ]
+        return [create_course_object(course) for course in courses]
 
     def get_course(self, course_id):
         """Get a Canvas course by id.
@@ -54,12 +41,7 @@ class CanvasTasks:
             A Canvas course object.
         """
         course = self.canvas.get_course(course_id, include=["term"])
-        return Course(
-            id=course.id,
-            name=course.name,
-            course_code=course.course_code,
-            term=course.term["name"],
-        )
+        return create_course_object(course)
 
     def get_students(self, course_id):
         """Get all students in a course.
@@ -72,14 +54,7 @@ class CanvasTasks:
         """
         course = self.canvas.get_course(course_id)
         students = course.get_users(enrollment_type=["student"])
-        return [
-            Student(
-                id=student.id,
-                name=student.short_name,
-                sortable_name=student.sortable_name,
-            )
-            for student in students
-        ]
+        return [create_student_object(student) for student in students]
 
     def get_sections(self, course_id):
         """Get a list of sections, including students
@@ -133,6 +108,33 @@ class CanvasTasks:
         groupset = canvas_course.create_group_category(name)
         return GroupSet(id=groupset.id, name=name)
 
+    def list_groupsets(self, course: Course) -> list[GroupSet]:
+        """List groupsets in a course.
+
+        Args:
+            course (Course): the course containing the groupsets.
+
+        Returns:
+            list[GroupSet]: a list of GroupSet objects.
+        """
+        groupsets = course._course.get_group_categories()
+        return [
+            GroupSet(id=groupset.id, name=groupset.name, _group_set=groupset)
+            for groupset in groupsets
+        ]
+
+    def get_groupset(self, group_set_id: int) -> GroupSet:
+        """Get a groupset by id
+
+        Args:
+            group_set_id (int): the groupset ID.
+
+        Returns:
+            GroupSet: the requests groupset object.
+        """
+        groupset = self.canvas.get_group_category(group_set_id)
+        return GroupSet(id=groupset.id, name=groupset.name, _group_set=groupset)
+
     def create_group(self, group_name, group_set):
         """Create a group inside a GroupSet.
 
@@ -148,6 +150,10 @@ class CanvasTasks:
         group = groupset.create_group(name=group_name)
         return Group(id=group.id, name=group_name)
 
+    def list_groups(self, group_set: GroupSet) -> list[Group]:
+        groups = group_set._group_set.get_groups()
+        return [Group(id=group.id, name=group.name, _group=group) for group in groups]
+
     def add_student_to_group(self, student, group):
         """Add student to a group.
 
@@ -157,3 +163,25 @@ class CanvasTasks:
         """
         canvas_group = self.canvas.get_group(group.id)
         canvas_group.create_membership(student.id)
+
+    def get_students_in_group(self, group: Group) -> list[Student]:
+        students = group._group.get_users()
+        return [create_student_object(student) for student in students]
+
+
+def create_course_object(course: canvasapi.course.Course):
+    return Course(
+        id=course.id,
+        name=course.name,
+        course_code=course.course_code,
+        term=course.term["name"],
+        _course=course,
+    )
+
+
+def create_student_object(student: canvasapi.user.User):
+    return Student(
+        id=student.id,
+        name=student.short_name,
+        sortable_name=student.sortable_name,
+    )
