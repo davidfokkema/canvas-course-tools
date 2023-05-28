@@ -1,1 +1,6 @@
-__version__ = "0.5.2"
+import importlib.metadata
+
+try:
+    __version__ = importlib.metadata.version("canvas_course_tools")
+except importlib.metadata.PackageNotFoundError:
+    __version__ = None
