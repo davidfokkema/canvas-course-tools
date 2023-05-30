@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "canvas-course-tools"
-version = "0.6.0"
+version = "0.6.1"
 homepage = "https://github.com/davidfokkema/canvas-course-tools"
 description = "Canvas course tools"
 authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
@@ -24,7 +24,7 @@ classifiers = [
 canvas = "canvas_course_tools.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 click = "^8.1.3"
 appdirs = "^1.4.4"
 rich = "^13.3.5"
