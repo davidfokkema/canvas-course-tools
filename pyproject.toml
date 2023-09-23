@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "canvas-course-tools"
-version = "0.6.1"
+version = "0.6.2"
 homepage = "https://github.com/davidfokkema/canvas-course-tools"
 description = "Canvas course tools"
 authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
 readme = "README.md"
-packages = [{include = "canvas_course_tools", from = "src"}]
+packages = [{ include = "canvas_course_tools", from = "src" }]
 license = "GPL-3.0-or-later"
 classifiers = [
     "Development Status :: 4 - Beta",
