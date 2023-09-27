@@ -2,7 +2,15 @@ import canvasapi
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 
-from canvas_course_tools.datatypes import Course, Group, GroupSet, Section, Student
+from canvas_course_tools.datatypes import (
+    Assignment,
+    AssignmentGroup,
+    Course,
+    Group,
+    GroupSet,
+    Section,
+    Student,
+)
 
 
 class CanvasObjectExistsError(Exception):
@@ -167,6 +175,20 @@ class CanvasTasks:
     def get_students_in_group(self, group: Group) -> list[Student]:
         students = group._group.get_users()
         return [create_student_object(student) for student in students]
+
+    def get_assignment_groups(self, course: Course) -> list[AssignmentGroup]:
+        groups = course._course.get_assignment_groups()
+        return [
+            AssignmentGroup(id=group.id, name=group.name, course=course)
+            for group in groups
+        ]
+
+    def get_assignments_for_group(self, group: AssignmentGroup) -> list[Assignment]:
+        assignments = group.course._course.get_assignments_for_group(group.id)
+        return [
+            Assignment(id=assignment.id, name=assignment.name, _api=assignment)
+            for assignment in assignments
+        ]
 
 
 def create_course_object(course: canvasapi.course.Course):

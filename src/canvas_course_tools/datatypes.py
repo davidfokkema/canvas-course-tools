@@ -68,12 +68,14 @@ class GroupList:
 class AssignmentGroup:
     id: int
     name: str
+    course: Course
 
 
 @dataclass
 class Assignment:
     id: int
     name: str
+    _api: canvasapi.assignment.Assignment | None = field(default=None, repr=False)
 
 
 @dataclass
