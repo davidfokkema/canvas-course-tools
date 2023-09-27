@@ -54,11 +54,37 @@ class Section:
 
 @dataclass
 class StudentGroup:
-    name: str = ""
+    name: str
     students: list[Student] = field(default_factory=list)
 
 
 @dataclass
 class GroupList:
-    name: str = ""
+    name: str
     groups: list[StudentGroup] = field(default_factory=list)
+
+
+@dataclass
+class AssignmentGroup:
+    id: int
+    name: str
+
+
+@dataclass
+class Assignment:
+    id: int
+    name: str
+
+
+@dataclass
+class Attachment:
+    name: str
+    url: str
+    content_type: str
+
+
+@dataclass
+class Submission:
+    student: Student | int
+    submission_comments: list[str]
+    attachments: list[Attachment]
