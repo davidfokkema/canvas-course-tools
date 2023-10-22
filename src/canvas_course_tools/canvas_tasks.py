@@ -5,11 +5,13 @@ from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotE
 from canvas_course_tools.datatypes import (
     Assignment,
     AssignmentGroup,
+    Attachment,
     Course,
     Group,
     GroupSet,
     Section,
     Student,
+    Submission,
 )
 
 
@@ -189,6 +191,16 @@ class CanvasTasks:
             Assignment(id=assignment.id, name=assignment.name, _api=assignment)
             for assignment in assignments
         ]
+
+    def get_submission(self, assignment: Assignment, student: Student) -> Submission:
+        submission = assignment._api.get_submission(user=student.id)
+        attachments = [
+            Attachment(
+                name=a.filename, url=a.url, content_type=getattr(a, "content-type")
+            )
+            for a in submission.attachments
+        ]
+        return Submission(student=student, attachments=attachments)
 
 
 def create_course_object(course: canvasapi.course.Course):
