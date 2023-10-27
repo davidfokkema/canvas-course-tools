@@ -188,7 +188,12 @@ class CanvasTasks:
     def get_assignments_for_group(self, group: AssignmentGroup) -> list[Assignment]:
         assignments = group.course._course.get_assignments_for_group(group.id)
         return [
-            Assignment(id=assignment.id, name=assignment.name, _api=assignment)
+            Assignment(
+                id=assignment.id,
+                name=assignment.name,
+                submission_types=assignment.submission_types,
+                _api=assignment,
+            )
             for assignment in assignments
         ]
 

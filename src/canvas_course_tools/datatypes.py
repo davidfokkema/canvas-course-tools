@@ -75,6 +75,7 @@ class AssignmentGroup:
 class Assignment:
     id: int
     name: str
+    submission_types: list[str]
     _api: canvasapi.assignment.Assignment | None = field(default=None, repr=False)
 
 
