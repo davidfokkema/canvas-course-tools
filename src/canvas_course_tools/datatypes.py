@@ -89,5 +89,6 @@ class Attachment:
 @dataclass
 class Submission:
     student: Student
+    attempt: int | None
     # submission_comments: list[str]
     attachments: list[Attachment]

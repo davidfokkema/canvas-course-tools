@@ -205,7 +205,9 @@ class CanvasTasks:
             )
             for a in submission.attachments
         ]
-        return Submission(student=student, attachments=attachments)
+        return Submission(
+            student=student, attempt=submission.attempt, attachments=attachments
+        )
 
 
 def create_course_object(course: canvasapi.course.Course):
