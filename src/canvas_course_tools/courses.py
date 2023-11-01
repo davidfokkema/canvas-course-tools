@@ -130,7 +130,7 @@ def print_courses(courses, use_codes):
     for course in courses:
         fields = [str(course.id), course.alias, course.name, course.term]
         if use_codes:
-            fields.insert(1, course.course_code)
+            fields.insert(2, course.course_code)
         table.add_row(*fields)
     print()
     print(table)
