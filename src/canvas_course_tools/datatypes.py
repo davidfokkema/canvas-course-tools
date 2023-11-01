@@ -54,13 +54,13 @@ class Section:
 
 @dataclass
 class StudentGroup:
-    name: str
+    name: str = ""
     students: list[Student] = field(default_factory=list)
 
 
 @dataclass
 class GroupList:
-    name: str
+    name: str = ""
     groups: list[StudentGroup] = field(default_factory=list)
 
 
