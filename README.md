@@ -22,7 +22,7 @@ Especially for grading, it can be very helpful to review small groups of student
 
 First, we'll need to tell the `canvas` utility where it can find the Canvas installation of your institition.
 If you run `canvas` without arguments it will show you a list of supported commands:
-```
+```console
 $ canvas
 
  Usage: canvas [OPTIONS] COMMAND [ARGS]...
