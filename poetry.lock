@@ -66,12 +66,12 @@ files = [
 
 [[package]]
 name = "canvasapi"
-version = "3.1.0"
+version = "3.2.0"
 description = "API wrapper for the Canvas LMS"
 optional = false
 python-versions = "*"
 files = [
-    {file = "canvasapi-3.1.0.tar.gz", hash = "sha256:ac65f8fd0be292a1f39e72c3abdc1c25099e107bf8ac0a6ba713ae122c06067b"},
+    {file = "canvasapi-3.2.0.tar.gz", hash = "sha256:7cf97ad1ddc860e250c3453e229897ed1273095ad061c34baf651bf1b0e5a9c7"},
 ]
 
 [package.dependencies]
@@ -825,4 +825,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "7acf5777933f47f6208a649d51fb5f7117abe8ea8f6b236be7659012860a537b"
+content-hash = "7ada0ab1c1c0c53c448d0314545916554c78e4d0d15cbf5c5e7f77b4c1cd127a"
