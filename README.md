@@ -41,7 +41,7 @@ $ canvas
 ╰──────────────────────────────────────────────────────────────────────╯
 ```
 It appears that the `servers` command might be a good match. Let's check:
-```
+```console
 $ canvas servers
                                                                         
  Usage: canvas servers [OPTIONS] COMMAND [ARGS]...                      
@@ -59,7 +59,7 @@ $ canvas servers
 ╰──────────────────────────────────────────────────────────────────────╯
 ```
 Let's try the `add` subcommand:
-```
+```console
 $ canvas servers add
                                                                         
  Usage: canvas servers add [OPTIONS] ALIAS URL TOKEN                    
@@ -72,7 +72,7 @@ $ canvas servers add
 We're clearly missing something called `ALIAS` but the output is not very helpful.
 It _does_ suggest, however, to include the `--help` argument.
 If we do, we get:
-```
+```console
 $ canvas servers add --help
 
  Usage: canvas servers add [OPTIONS] ALIAS URL TOKEN
@@ -95,7 +95,7 @@ You can only view your token once.
 If you lose it, you can revoke it from your Canvas profile page and generate a new one.
 Once you've created your token, use it to add the server using the `canvas servers add` command as shown above.
 If successful, your Canvas installation should be available in the list:
-```
+```console
 $ canvas servers list
 
  ────────────────────────────────────────────
@@ -112,7 +112,7 @@ Don't forget you can always add `--help` to the end of any command to get a desc
 ### Listing and adding courses
 
 You can list all courses accessible by your account using:
-```
+```console
 $ canvas courses list school
 
  ────────────────────────────────────────────────────────────────────── 
@@ -124,12 +124,12 @@ $ canvas courses list school
 ```
 Note that the `Alias` field is still empty because we have not yet added courses.
 You can add courses for future reference by creating an alias like this:
-```
+```console
 $ canvas courses add phys101 school 12345
 ```
 We first specified the alias (you can choose anything you like as long as it doesn't contain spaces) and after that we specified the server alias and the course ID.
 We can see that it was successful:
-```
+```console
 $ canvas courses list school
 
  ────────────────────────────────────────────────────────────────────── 
@@ -140,7 +140,7 @@ $ canvas courses list school
  ────────────────────────────────────────────────────────────────────── 
 ```
 To only list registered courses we can leave off the canvas server as an argument:
-```
+```console
 $ canvas courses list
 
  ────────────────────────────────────────────────────────────────────── 
