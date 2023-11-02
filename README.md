@@ -16,6 +16,15 @@ These groups can then be used for grading or peer feedback.
 Especially for grading, it can be very helpful to review small groups of students instead of finding particular students in a long list.
 
 
+## Installation
+
+You can install using `pip` in any Python environment, but the recommended way to install canvas-course-tools is using [pipx](https://pypa.github.io/pipx/):
+```console
+$ pipx install canvas-course-tools
+```
+The `canvas` utility is available from the terminal.
+
+
 ## Tutorial
 
 ### Initial setup
