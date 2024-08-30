@@ -52,13 +52,23 @@ def list_courses(server_alias, use_codes):
             print_courses(courses, use_codes)
     else:
         courses = []
+        forbidden_aliases = []
         if "courses" in config:
             for alias, course in config["courses"].items():
                 canvas = get_canvas(course["server"])
-                course = canvas.get_course(course["course_id"])
-                course.alias = alias
-                courses.append(course)
+                try:
+                    course = canvas.get_course(course["course_id"])
+                except Forbidden:
+                    forbidden_aliases.append(alias)
+                else:
+                    course.alias = alias
+                    courses.append(course)
             print_courses(courses, use_codes)
+
+            if forbidden_aliases:
+                print("\n[bold red]These aliases don't have access rights:[/]")
+                print("[red]" + ", ".join(forbidden_aliases))
+
         else:
             raise click.UsageError("No courses are registered yet.")
 
