@@ -20,7 +20,6 @@ class CanvasObjectExistsError(Exception):
 
 
 class CanvasTasks:
-
     """Collection of canvas-related tasks."""
 
     def __init__(self, url, token):
@@ -53,7 +52,7 @@ class CanvasTasks:
         course = self.canvas.get_course(course_id, include=["term"])
         return create_course_object(course)
 
-    def get_students(self, course_id):
+    def get_students(self, course_id, show_test_student=False):
         """Get all students in a course.
 
         Args:
@@ -63,7 +62,11 @@ class CanvasTasks:
             list: a list of student objects
         """
         course = self.canvas.get_course(course_id)
-        students = course.get_users(enrollment_type=["student"])
+        if show_test_student:
+            enrollment_type = ["student", "student_view"]
+        else:
+            enrollment_type = ["student"]
+        students = course.get_users(enrollment_type=enrollment_type)
         return [create_student_object(student) for student in students]
 
     def get_sections(self, course_id):
