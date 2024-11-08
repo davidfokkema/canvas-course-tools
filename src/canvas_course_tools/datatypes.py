@@ -90,5 +90,6 @@ class Attachment:
 class Submission:
     student: Student
     attempt: int | None
+    time_passed_deadline: int
     # submission_comments: list[str]
     attachments: list[Attachment]

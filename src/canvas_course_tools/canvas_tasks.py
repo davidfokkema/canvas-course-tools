@@ -209,7 +209,10 @@ class CanvasTasks:
             for a in submission.attachments
         ]
         return Submission(
-            student=student, attempt=submission.attempt, attachments=attachments
+            student=student,
+            attempt=submission.attempt,
+            time_passed_deadline=submission.seconds_late,
+            attachments=attachments,
         )
 
 
