@@ -57,6 +57,7 @@ class CanvasTasks:
 
         Args:
             course_id (integer): the Canvas course id
+            show_test_student (bool): if True, include the Test Student
 
         Returns:
             list: a list of student objects
