@@ -1,4 +1,5 @@
 import canvasapi
+import httpx
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 
@@ -30,6 +31,8 @@ class CanvasTasks:
             token: a string containing the Canvas API access token
         """
         self.canvas = Canvas(url, token)
+        self._url = url
+        self._headers = {"Authorization": f"Bearer {token}"}
 
     def list_courses(self):
         """List Canvas courses.
@@ -195,26 +198,34 @@ class CanvasTasks:
             Assignment(
                 id=assignment.id,
                 name=assignment.name,
+                course=group.course,
                 submission_types=assignment.submission_types,
                 _api=assignment,
             )
             for assignment in assignments
         ]
 
-    def get_submission(self, assignment: Assignment, student: Student) -> Submission:
-        submission = assignment._api.get_submission(user=student.id)
-        attachments = [
-            Attachment(
-                name=a.filename, url=a.url, content_type=getattr(a, "content-type")
-            )
-            for a in submission.attachments
-        ]
-        return Submission(
-            student=student,
-            attempt=submission.attempt,
-            time_passed_deadline=submission.seconds_late,
-            attachments=attachments,
+    def get_submissions(self, assignment: Assignment, student: Student) -> Submission:
+        """Get student submission.
+
+        Gets a student submission from Canvas for a particular assignment. The
+        submission includes all submission attempts along with all submission
+        comments, either by the student or by teachers or teaching assistants.
+
+        Args:
+            assignment (Assignment): the assignment for which to get the
+            submission. student (Student): the student for whom to get the
+            submission.
+
+        Returns:
+            Submission: the student submission
+        """
+        response = httpx.get(
+            f"{self._url}/api/v1/courses/{assignment.course.id}/assignments/{assignment.id}/submissions/{student.id}",
+            headers=self._headers,
+            params={"include[]": ["submission_history", "submission_comments"]},
         )
+        return Submission.model_validate_json(response.text)
 
 
 def create_course_object(course: canvasapi.course.Course):

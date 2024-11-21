@@ -2,6 +2,7 @@ import pathlib
 from dataclasses import dataclass, field
 
 import canvasapi
+from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl
 
 
 @dataclass
@@ -75,21 +76,42 @@ class AssignmentGroup:
 class Assignment:
     id: int
     name: str
+    course: Course
     submission_types: list[str]
     _api: canvasapi.assignment.Assignment | None = field(default=None, repr=False)
 
 
-@dataclass
-class Attachment:
-    name: str
-    url: str
-    content_type: str
+class Attachment(BaseModel):
+    id: int
+    filename: str
+    url: HttpUrl
+    content_type: str = Field(
+        validation_alias=AliasChoices("content_type", "content-type")
+    )
 
 
-@dataclass
-class Submission:
-    student: Student
-    attempt: int | None
-    time_passed_deadline: int
-    # submission_comments: list[str]
+class SubmissionAttempt(BaseModel):
+    id: int
+    attempt: int
+    submitted_at: AwareDatetime
+    seconds_late: int
     attachments: list[Attachment]
+
+
+class Comment(BaseModel):
+    id: int
+    author_name: str
+    created_at: AwareDatetime
+    comment: str
+
+
+class Submission(BaseModel):
+    id: int
+    grade: str
+    score: float
+    attempts: list[SubmissionAttempt] = Field(
+        validation_alias=AliasChoices("attempts", "submission_history")
+    )
+    comments: list[Comment] = Field(
+        validation_alias=AliasChoices("comments", "submission_comments")
+    )
