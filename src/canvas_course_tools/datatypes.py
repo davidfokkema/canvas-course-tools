@@ -2,7 +2,15 @@ import pathlib
 from dataclasses import dataclass, field
 
 import canvasapi
-from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl
+from pydantic import (
+    AliasChoices,
+    AwareDatetime,
+    BaseModel,
+    Field,
+    HttpUrl,
+    ValidationInfo,
+    field_validator,
+)
 
 
 @dataclass
@@ -107,11 +115,23 @@ class Comment(BaseModel):
 
 class Submission(BaseModel):
     id: int
-    grade: str
-    score: float
+    grade: str | None
+    score: float | None
+    missing: bool
     attempts: list[SubmissionAttempt] = Field(
         validation_alias=AliasChoices("attempts", "submission_history")
     )
     comments: list[Comment] = Field(
         validation_alias=AliasChoices("comments", "submission_comments")
     )
+
+    @field_validator("attempts", mode="before")
+    @classmethod
+    def check_missing(
+        cls, value: dict, info: ValidationInfo
+    ) -> list[SubmissionAttempt]:
+        """Check if the submission is missing."""
+        if info.data["missing"]:
+            return []
+        else:
+            return value
