@@ -6,7 +6,6 @@ from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotE
 from canvas_course_tools.datatypes import (
     Assignment,
     AssignmentGroup,
-    Attachment,
     Course,
     Group,
     GroupSet,
