@@ -90,7 +90,7 @@ class Attachment(BaseModel):
     )
 
 
-class SubmissionAttempt(BaseModel):
+class CanvasSubmissionAttempt(BaseModel):
     id: int
     attempt: int | None
     submitted_at: AwareDatetime | None
@@ -98,21 +98,21 @@ class SubmissionAttempt(BaseModel):
     attachments: list[Attachment] = []
 
 
-class Comment(BaseModel):
+class CanvasComment(BaseModel):
     id: int
     author_name: str
     created_at: AwareDatetime
     comment: str
 
 
-class Submission(SubmissionAttempt):
+class CanvasSubmission(CanvasSubmissionAttempt):
     grade: str | None
     score: float | None
     attempt: int | None
     missing: bool
-    attempts: list[SubmissionAttempt] = Field(
+    attempts: list[CanvasSubmissionAttempt] = Field(
         validation_alias=AliasChoices("attempts", "submission_history")
     )
-    comments: list[Comment] = Field(
+    comments: list[CanvasComment] = Field(
         validation_alias=AliasChoices("comments", "submission_comments")
     )

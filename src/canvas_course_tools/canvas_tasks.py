@@ -6,12 +6,12 @@ from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotE
 from canvas_course_tools.datatypes import (
     Assignment,
     AssignmentGroup,
+    CanvasSubmission,
     Course,
     Group,
     GroupSet,
     Section,
     Student,
-    Submission,
 )
 
 
@@ -204,7 +204,9 @@ class CanvasTasks:
             for assignment in assignments
         ]
 
-    def get_submissions(self, assignment: Assignment, student: Student) -> Submission:
+    def get_submissions(
+        self, assignment: Assignment, student: Student
+    ) -> CanvasSubmission:
         """Get student submission.
 
         Gets a student submission from Canvas for a particular assignment. The
@@ -224,7 +226,7 @@ class CanvasTasks:
             headers=self._headers,
             params={"include[]": ["submission_history", "submission_comments"]},
         )
-        return Submission.model_validate_json(response.text)
+        return CanvasSubmission.model_validate_json(response.text)
 
 
 def create_course_object(course: canvasapi.course.Course):
