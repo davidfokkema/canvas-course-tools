@@ -81,7 +81,7 @@ class Assignment:
     _api: canvasapi.assignment.Assignment | None = field(default=None, repr=False)
 
 
-class Attachment(BaseModel):
+class CanvasAttachment(BaseModel):
     id: int
     filename: str
     url: HttpUrl
@@ -95,7 +95,7 @@ class CanvasSubmissionAttempt(BaseModel):
     attempt: int | None
     submitted_at: AwareDatetime | None
     seconds_late: int
-    attachments: list[Attachment] = []
+    attachments: list[CanvasAttachment] = []
 
 
 class CanvasComment(BaseModel):
