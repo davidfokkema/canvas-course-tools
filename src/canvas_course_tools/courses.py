@@ -97,16 +97,19 @@ def add_course(alias, course_id, server_alias, update):
         else:
             canvas = CanvasTasks(server["url"], server["token"])
             try:
-                canvas.get_course(course_id)
+                course = canvas.get_course(course_id)
             except ResourceDoesNotExist:
-                print(f"[bold red]This course ID does not exist.[/bold red]")
+                print("[bold red]This course ID does not exist.[/bold red]")
             except Forbidden:
                 print(
-                    f"[bold red]You don't have authorization for this course.[/bold red]"
+                    "[bold red]You don't have authorization for this course.[/bold red]"
                 )
             else:
                 courses[alias] = {"server": server_alias, "course_id": course_id}
                 configfile.write_config(config)
+                print(
+                    f"[green]Course {course.name} ({course.term}) added successfully using alias [bold]{alias}[/bold].[/green]"
+                )
 
 
 @courses.command("remove")
