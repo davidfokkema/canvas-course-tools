@@ -1,9 +1,8 @@
 import pathlib
+import tomllib
 
-import appdirs
-import tomli
+import platformdirs
 import tomli_w
-
 
 APP_NAME = "canvas-course-tools"
 CONFIG_FILE = "config.toml"
@@ -15,8 +14,8 @@ def read_config():
     if config_path.is_file():
         try:
             with open(config_path, "rb") as f:
-                return tomli.load(f)
-        except (tomli.TOMLDecodeError, UnicodeDecodeError):
+                return tomllib.load(f)
+        except (tomllib.TOMLDecodeError, UnicodeDecodeError):
             # error parsing TOML
             return {}
     else:
@@ -41,7 +40,7 @@ def write_config(config):
 
 def get_config_path():
     """Get path of configuration file."""
-    config_dir = pathlib.Path(appdirs.user_config_dir(APP_NAME))
+    config_dir = pathlib.Path(platformdirs.user_config_dir(APP_NAME))
     config_path = config_dir / CONFIG_FILE
     return config_path
 

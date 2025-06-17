@@ -1,9 +1,9 @@
 import importlib.resources
 import pathlib
+import tomllib
 
 import jinja2
 import rich_click as click
-import tomli
 from rich import box
 from rich.console import Console
 from rich.syntax import Syntax
@@ -26,7 +26,7 @@ def list_templates():
     """List all available templates."""
     template_files = importlib.resources.files("canvas_course_tools") / "templates"
     info_file = template_files / TEMPLATE_INFO_FILE
-    info = tomli.loads(info_file.read_text(encoding="utf-8"))
+    info = tomllib.loads(info_file.read_text(encoding="utf-8"))
 
     table = Table(box=box.HORIZONTALS)
     table.add_column("Template")

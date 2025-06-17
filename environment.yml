@@ -1,8 +1,0 @@
-name: canvas-course-tools
-
-channels:
-  - default
-
-dependencies:
-  - python=3.9
-  - poetry

@@ -1,11 +1,10 @@
-[tool.poetry]
+[project]
 name = "canvas-course-tools"
-version = "0.12.0"
-homepage = "https://github.com/davidfokkema/canvas-course-tools"
+version = "0.13.0.dev1"
 description = "Canvas course tools"
-authors = ["David Fokkema <d.b.r.a.fokkema@vu.nl>"]
 readme = "README.md"
-packages = [{ include = "canvas_course_tools", from = "src" }]
+authors = [{ "name" = "David Fokkema", "email" = "davidfokkema@icloud.com" }]
+requires-python = ">=3.11"
 license = "GPL-3.0-or-later"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -18,29 +17,33 @@ classifiers = [
     "Operating System :: POSIX",
     "Programming Language :: Python",
 ]
+dependencies = [
+    "canvasapi>=3.3.0",
+    "click>=8.2.1",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "platformdirs>=4.3.8",
+    "pydantic>=2.11.7",
+    "rich>=14.0.0",
+    "rich-click>=1.8.9",
+    "tomli-w>=1.2.0",
+    "trogon>=0.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/davidfokkema/canvas-course-tools"
+Documentation = "https://github.com/davidfokkema/canvas-course-tools/blob/main/README.md"
+Repository = "https://github.com/davidfokkema/canvas-course-tools.git"
+Issues = "https://github.com/davidfokkema/canvas-course-tools/issues"
+Changelog = "https://github.com/davidfokkema/canvas-course-tools/blob/main/CHANGELOG.md"
 
 
-[tool.poetry.scripts]
+[project.scripts]
 canvas = "canvas_course_tools.cli:cli"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-click = "^8.1.3"
-appdirs = "^1.4.4"
-rich = "^13.8.1"
-canvasapi = "^3.2.0"
-python-dateutil = "^2.8.1"
-rich-click = "^1.5.2"
-jinja2 = "^3.1.2"
-tomli-w = "^1.0.0"
-tomli = "^2.0.1"
-trogon = "^0.5.0"
-httpx = "^0.27.2"
-pydantic = "^2.9.2"
-
-[tool.poetry.group.dev.dependencies]
-ipython = "^8.13.2"
-
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["ipython>=9.3.0"]
