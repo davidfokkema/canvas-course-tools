@@ -1,5 +1,7 @@
 # Michelson-interferometer: introductie
 
+Mooie introductie. [Link 1](https://canvas.vu.nl/) en [Link 2](testdoc.md).
+
 De Michelson-interferometer is een meetinstrument waarmee weglengteverschillen tussen twee paden heel nauwkeurig bepaald kunnen worden. In 1887 hebben Michelson en Morley de interferometer ingezet om 'ether' aan te tonen,[^1] het veronderstelde medium waar doorheen men dacht dat licht zich verplaatste. Om voldoende nauwkeurigheid te verkrijgen had hun interferometer twee paden van 11 meter lang. Uiteindelijk hebben ze op basis van hun resultaten moeten concluderen dat ether niet bestaat. Dit resultaat droeg onder andere bij aan de ontwikkeling van Einsteins speciale relativiteitstheorie. Tegenwoordig wordt de interferometer ingezet bij bijvoorbeeld het onderzoek naar zwaartekrachtgolven.[^2] [^3] Zo is de interferometer LIGO met paden van 4 km, maar een effectieve padlengte van 1120 km, in staat om een weglengteverschil van 10^-19^ m te meten.[^4] Over een nauwkeurig meetinstrument gesproken! Het is door het meten van die subatomaire afstandsschalen dat uitspraken gedaan kunnen worden over de meest gewelddadige kosmische processen, miljarden lichtjaren hiervandaan.
 
 $$
