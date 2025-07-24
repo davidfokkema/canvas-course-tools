@@ -1,11 +1,16 @@
+from typing import Generator
+
 import canvasapi
 import httpx
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
+from pydantic import TypeAdapter
 
 from canvas_course_tools.datatypes import (
     Assignment,
     AssignmentGroup,
+    CanvasFile,
+    CanvasFolder,
     CanvasSubmission,
     Course,
     Group,
@@ -227,6 +232,33 @@ class CanvasTasks:
             params={"include[]": ["submission_history", "submission_comments"]},
         )
         return CanvasSubmission.model_validate_json(response.text)
+
+    def get_folders(self, course: Course) -> Generator[CanvasFolder, None, None]:
+        """Get all folders in a course.
+
+        Args:
+            course (Course): the course for which to get the folders.
+
+        Yields:
+            CanvasFolder: a generator yielding CanvasFolder objects.
+        """
+        url = httpx.URL(f"{self._url}/api/v1/courses/{course.id}/folders")
+        while True:
+            response = httpx.get(
+                url=url,
+                headers=self._headers,
+                params=url.copy_merge_params({"per_page": 2}).params,
+            )
+
+            adapter = TypeAdapter(list[CanvasFolder])
+            yield from adapter.validate_json(response.text)
+
+            if (
+                "Link" not in response.headers
+                or (next_page := response.links.get("next", {}).get("url")) is None
+            ):
+                break
+            url = httpx.URL(next_page)
 
 
 def create_course_object(course: canvasapi.course.Course):

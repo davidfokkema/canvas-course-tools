@@ -116,3 +116,27 @@ class CanvasSubmission(CanvasSubmissionAttempt):
     comments: list[CanvasComment] = Field(
         validation_alias=AliasChoices("comments", "submission_comments")
     )
+
+
+class CanvasFolder(BaseModel):
+    id: int
+    name: str
+    full_name: str
+    parent_folder_id: int | None = None
+    context_type: str
+    files_count: int
+    folders_count: int
+    updated_at: AwareDatetime
+    created_at: AwareDatetime
+
+
+class CanvasFile(BaseModel):
+    id: int
+    folder_id: int
+    display_name: str
+    filename: str
+    content_type: str
+    url: HttpUrl
+    size: int
+    created_at: AwareDatetime
+    updated_at: AwareDatetime
