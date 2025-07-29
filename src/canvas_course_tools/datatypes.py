@@ -135,7 +135,9 @@ class CanvasFile(BaseModel):
     folder_id: int
     display_name: str
     filename: str
-    content_type: str
+    content_type: str = Field(
+        validation_alias=AliasChoices("content_type", "content-type")
+    )
     url: HttpUrl
     size: int
     created_at: AwareDatetime

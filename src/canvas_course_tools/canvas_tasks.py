@@ -246,11 +246,32 @@ class CanvasTasks:
                 will default to the Canvas API default.
 
         Yields:
-            CanvasFolder: a generator yielding CanvasFolder objects.
+            A generator yielding CanvasFolder objects.
         """
         url = f"{self._url}/api/v1/courses/{course.id}/folders"
 
         adapter = TypeAdapter(list[CanvasFolder])
+        for response in self._get_paginated_api_response(
+            url, params={"per_page": batch_size} if batch_size else None
+        ):
+            yield from adapter.validate_json(response)
+
+    def get_files(
+        self, course: Course, batch_size: int | None = None
+    ) -> Generator[CanvasFile, None, None]:
+        """Get all files in a course.
+
+        Args:
+            course: the course for which to get the files.
+            batch_size: the number of files to fetch per request. If None,
+                will default to the Canvas API default.
+
+        Yields:
+            A generator yielding CanvasFile objects.
+        """
+        url = f"{self._url}/api/v1/courses/{course.id}/files"
+
+        adapter = TypeAdapter(list[CanvasFile])
         for response in self._get_paginated_api_response(
             url, params={"per_page": batch_size} if batch_size else None
         ):
