@@ -1,4 +1,4 @@
-from typing import Generator
+from typing import Any, Generator
 
 import canvasapi
 import httpx
@@ -233,32 +233,50 @@ class CanvasTasks:
         )
         return CanvasSubmission.model_validate_json(response.text)
 
-    def get_folders(self, course: Course) -> Generator[CanvasFolder, None, None]:
+    def get_folders(
+        self, course: Course, batch_size: int | None = None
+    ) -> Generator[CanvasFolder, None, None]:
         """Get all folders in a course.
 
         Args:
-            course (Course): the course for which to get the folders.
+            course: the course for which to get the folders.
+            batch_size: the number of folders to fetch per request. If None,
+                will default to the Canvas API default.
 
         Yields:
             CanvasFolder: a generator yielding CanvasFolder objects.
         """
-        url = httpx.URL(f"{self._url}/api/v1/courses/{course.id}/folders")
-        while True:
-            response = httpx.get(
-                url=url,
-                headers=self._headers,
-                params=url.copy_merge_params({"per_page": 2}).params,
-            )
+        url = f"{self._url}/api/v1/courses/{course.id}/folders"
 
-            adapter = TypeAdapter(list[CanvasFolder])
-            yield from adapter.validate_json(response.text)
+        adapter = TypeAdapter(list[CanvasFolder])
+        for response in self._get_paginated_api_response(
+            url, params={"per_page": batch_size} if batch_size else None
+        ):
+            yield from adapter.validate_json(response)
+
+    def _get_paginated_api_response(
+        self, url: str, params: dict[str, Any] | None = None
+    ) -> Generator[str, None, None]:
+        """Get paginated API response.
+
+        Args:
+            url: the URL to fetch.
+            params: additional parameters to include in the request.
+
+        Yields:
+            A string with the response text.
+        """
+        full_url = httpx.URL(url).copy_merge_params(params or {})
+        while True:
+            response = httpx.get(url=full_url, headers=self._headers)
+            yield response.text
 
             if (
                 "Link" not in response.headers
                 or (next_page := response.links.get("next", {}).get("url")) is None
             ):
                 break
-            url = httpx.URL(next_page)
+            full_url = httpx.URL(next_page)
 
 
 def create_course_object(course: canvasapi.course.Course):
