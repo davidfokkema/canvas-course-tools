@@ -19,6 +19,8 @@ from canvas_course_tools.datatypes import (
     Student,
 )
 
+__all__ = ["Forbidden", "InvalidAccessToken", "ResourceDoesNotExist"]
+
 
 class CanvasObjectExistsError(Exception):
     pass
