@@ -133,6 +133,7 @@ class CanvasFolder(BaseModel):
 class CanvasFile(BaseModel):
     id: int
     folder_id: int
+    folder: CanvasFolder | None = None
     display_name: str
     filename: str
     content_type: str = Field(

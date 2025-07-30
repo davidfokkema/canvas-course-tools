@@ -39,6 +39,7 @@ class CanvasTasks:
         self.canvas = Canvas(url, token)
         self._url = url
         self._headers = {"Authorization": f"Bearer {token}"}
+        self._folders_cache: dict[int, dict[int, CanvasFolder]] = {}
 
     def list_courses(self):
         """List Canvas courses.
@@ -248,13 +249,39 @@ class CanvasTasks:
         Yields:
             A generator yielding CanvasFolder objects.
         """
-        url = f"{self._url}/api/v1/courses/{course.id}/folders"
+        if course.id in self._folders_cache:
+            yield from self._folders_cache[course.id].values()
+            return
 
+        url = f"{self._url}/api/v1/courses/{course.id}/folders"
+        self._folders_cache[course.id] = {}
         adapter = TypeAdapter(list[CanvasFolder])
         for response in self._get_paginated_api_response(
             url, params={"per_page": batch_size} if batch_size else None
         ):
-            yield from adapter.validate_json(response)
+            for folder in adapter.validate_json(response):
+                self._folders_cache[course.id][folder.id] = folder
+                yield folder
+
+    def get_folder_by_id(self, folder_id: int) -> CanvasFolder:
+        """Get a folder by its ID.
+
+        Args:
+            folder_id: the ID of the folder to retrieve.
+
+        Returns:
+            The requested CanvasFolder object.
+        """
+        if not self._folders_cache:
+            raise ValueError("Folders cache is empty. Call get_folders first.")
+
+        for course_folders in self._folders_cache.values():
+            if folder_id in course_folders:
+                return course_folders[folder_id]
+
+        raise ValueError(
+            f"Folder with ID {folder_id} not found. Call get_folders first."
+        )
 
     def get_files(
         self, course: Course, batch_size: int | None = None
@@ -269,13 +296,19 @@ class CanvasTasks:
         Yields:
             A generator yielding CanvasFile objects.
         """
-        url = f"{self._url}/api/v1/courses/{course.id}/files"
+        if course.id not in self._folders_cache:
+            # Fetching folders before files.
+            for _ in self.get_folders(course, batch_size):
+                pass
 
+        url = f"{self._url}/api/v1/courses/{course.id}/files"
         adapter = TypeAdapter(list[CanvasFile])
         for response in self._get_paginated_api_response(
             url, params={"per_page": batch_size} if batch_size else None
         ):
-            yield from adapter.validate_json(response)
+            for file in adapter.validate_json(response):
+                file.folder = self.get_folder_by_id(file.folder_id)
+                yield file
 
     def _get_paginated_api_response(
         self, url: str, params: dict[str, Any] | None = None
