@@ -3,6 +3,8 @@ from typing import Any, Generator
 
 import canvasapi
 import httpx
+import mistune
+from bs4 import BeautifulSoup
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 from pydantic import TypeAdapter
@@ -464,6 +466,61 @@ class CanvasTasks:
             assert response.status_code == 201, (
                 f"Expected 201 Created, got {response.status_code}"
             )
+
+    def upload_markdown_page(self, course: Course, content: str) -> CanvasPage:
+        """Upload a markdown page to a course.
+
+        The Markdown content will be converted to HTML before uploading. The
+        page title will be derived from the <h1> tag in the content. If no <h1>
+        tag is present an exception will be raised.
+
+        This method first searches for an existing page with the same title, and
+        will update the first page that matches if any exist. If no such page
+        exists, it will create a new page.
+
+
+        Args:
+            course: the course to which the page will be uploaded.
+            content: the markdown content of the page.
+
+        Returns:
+            The created CanvasPage object.
+
+        Raises:
+            ValueError: The markdown does not conform to the expected structure.
+        """
+        # Convert Markdown to HTML and extract the title
+        markdown = mistune.create_markdown(
+            escape=False,
+            plugins=["math", "footnotes", "superscript"],
+        )
+        html = markdown(content)
+        assert type(html) is str, "Something went wrong with the markdown conversion"
+        soup = BeautifulSoup(html, "html.parser")
+        h1 = soup.find("h1")
+        if h1 is None:
+            raise ValueError(
+                "Markdown content must contain a heading level 1 or an <h1> tag for the title."
+            )
+        title = h1.text.strip()
+        h1.decompose()
+
+        try:
+            old_page = self.get_page_by_title(course, title)
+            method, url = (
+                "PUT",
+                f"{self._url}/api/v1/courses/{course.id}/pages/{old_page.short_url}",
+            )
+        except ResourceDoesNotExist:
+            method, url = "POST", f"{self._url}/api/v1/courses/{course.id}/pages"
+        response = httpx.request(
+            method,
+            url,
+            headers=self._headers,
+            params={"wiki_page[title]": title, "wiki_page[body]": str(soup)},
+        )
+        response.raise_for_status()
+        return CanvasPage.model_validate_json(response.text)
 
 
 def create_course_object(course: canvasapi.course.Course):
