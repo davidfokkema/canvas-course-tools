@@ -5,7 +5,7 @@ import canvasapi
 from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl
 
 
-@dataclass
+@dataclass(frozen=True)
 class Course:
     id: int
     name: str

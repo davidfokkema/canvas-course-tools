@@ -40,7 +40,8 @@ class CanvasTasks:
         self.canvas = Canvas(url, token)
         self._url = url
         self._headers = {"Authorization": f"Bearer {token}"}
-        self._folders_cache: dict[int, dict[int, CanvasFolder]] = {}
+        self._folders_cache: dict[Course, dict[int, CanvasFolder]] = {}
+        self._files_cache: dict[Course, dict[int, CanvasFile]] = {}
 
     def list_courses(self):
         """List Canvas courses.
@@ -251,18 +252,18 @@ class CanvasTasks:
         Yields:
             A generator yielding CanvasFolder objects.
         """
-        if course.id in self._folders_cache:
-            yield from self._folders_cache[course.id].values()
+        if course in self._folders_cache:
+            yield from self._folders_cache[course].values()
             return
 
         url = f"{self._url}/api/v1/courses/{course.id}/folders"
-        self._folders_cache[course.id] = {}
+        self._folders_cache[course] = {}
         adapter = TypeAdapter(list[CanvasFolder])
         for response in self._get_paginated_api_response(
             url, params={"per_page": batch_size} if batch_size else None
         ):
             for folder in adapter.validate_json(response):
-                self._folders_cache[course.id][folder.id] = folder
+                self._folders_cache[course][folder.id] = folder
                 yield folder
 
     def get_folder_by_id(self, folder_id: int) -> CanvasFolder:
@@ -298,18 +299,24 @@ class CanvasTasks:
         Yields:
             A generator yielding CanvasFile objects.
         """
-        if course.id not in self._folders_cache:
+        if course in self._files_cache:
+            yield from self._files_cache[course].values()
+            return
+
+        if course not in self._folders_cache:
             # Fetching folders before files.
             for _ in self.get_folders(course, batch_size):
                 pass
 
         url = f"{self._url}/api/v1/courses/{course.id}/files"
+        self._files_cache[course] = {}
         adapter = TypeAdapter(list[CanvasFile])
         for response in self._get_paginated_api_response(
             url, params={"per_page": batch_size} if batch_size else None
         ):
             for file in adapter.validate_json(response):
                 file.folder = self.get_folder_by_id(file.folder_id)
+                self._files_cache[course][file.id] = file
                 yield file
 
     def _get_paginated_api_response(
