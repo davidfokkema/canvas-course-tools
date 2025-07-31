@@ -348,6 +348,45 @@ class CanvasTasks:
                 self._pages_cache[course][page.id] = page
                 yield page
 
+    def get_pages_by_title(self, course: Course, title: str) -> list[CanvasPage]:
+        """Get all pages matching the title.
+
+        Args:
+            course: the course containing the pages.
+            title: the title of the pages to retrieve.
+
+        Returns:
+            A list with all matching CanvasPage objects.
+        """
+        if course not in self._pages_cache:
+            for _ in self.get_pages(course):
+                pass
+
+        return [
+            page for page in self._pages_cache[course].values() if page.title == title
+        ]
+
+    def get_page_by_title(self, course: Course, title: str) -> CanvasPage:
+        """Get a page by its title.
+
+        Unline get_pages_by_title, this method only returns the first page that
+        matches and raises an error if no page is found.
+
+        Args:
+            course: the course containing the page.
+            title: the title of the page to retrieve.
+
+        Returns:
+            The requested CanvasPage object.
+
+        Raises:
+            ResourceDoesNotExist: if no page with the given title is found.
+        """
+        pages = self.get_pages_by_title(course, title)
+        if not pages:
+            raise ResourceDoesNotExist(f"Page with title '{title}' not found.")
+        return pages[0]
+
     def _get_paginated_api_response(
         self, url: str, params: dict[str, Any] | None = None
     ) -> Generator[str, None, None]:
