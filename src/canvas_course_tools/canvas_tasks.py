@@ -12,6 +12,7 @@ from canvas_course_tools.datatypes import (
     AssignmentGroup,
     CanvasFile,
     CanvasFolder,
+    CanvasPage,
     CanvasSubmission,
     Course,
     Group,
@@ -42,6 +43,7 @@ class CanvasTasks:
         self._headers = {"Authorization": f"Bearer {token}"}
         self._folders_cache: dict[Course, dict[int, CanvasFolder]] = {}
         self._files_cache: dict[Course, dict[int, CanvasFile]] = {}
+        self._pages_cache: dict[Course, dict[int, CanvasPage]] = {}
 
     def list_courses(self):
         """List Canvas courses.
@@ -318,6 +320,33 @@ class CanvasTasks:
                 file.folder = self.get_folder_by_id(file.folder_id)
                 self._files_cache[course][file.id] = file
                 yield file
+
+    def get_pages(
+        self, course: Course, batch_size: int | None = None
+    ) -> Generator[CanvasPage, None, None]:
+        """Get all pages in a course.
+
+        Args:
+            course: the course for which to get the pages.
+            batch_size: the number of pages to fetch per request. If None,
+                will default to the Canvas API default.
+
+        Yields:
+            A generator yielding CanvasPages objects.
+        """
+        if course in self._pages_cache:
+            yield from self._pages_cache[course].values()
+            return
+
+        url = f"{self._url}/api/v1/courses/{course.id}/pages"
+        self._pages_cache[course] = {}
+        adapter = TypeAdapter(list[CanvasPage])
+        for response in self._get_paginated_api_response(
+            url, params={"per_page": batch_size} if batch_size else None
+        ):
+            for page in adapter.validate_json(response):
+                self._pages_cache[course][page.id] = page
+                yield page
 
     def _get_paginated_api_response(
         self, url: str, params: dict[str, Any] | None = None

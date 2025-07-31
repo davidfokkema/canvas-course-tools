@@ -143,3 +143,17 @@ class CanvasFile(BaseModel):
     size: int
     created_at: AwareDatetime
     updated_at: AwareDatetime
+
+
+class CanvasPage(BaseModel):
+    id: int = Field(validation_alias=AliasChoices("id", "page_id"))
+    short_url: str = Field(validation_alias=AliasChoices("short_url", "url"))
+    url: HttpUrl = Field(validation_alias=AliasChoices("html_url"))
+    html_url: HttpUrl | None
+    title: str
+    created_at: AwareDatetime
+    updated_at: AwareDatetime
+    body: str | None = None
+    is_published: bool = Field(
+        validation_alias=AliasChoices("is_published", "published")
+    )
