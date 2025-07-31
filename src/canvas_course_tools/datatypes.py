@@ -1,5 +1,5 @@
-import pathlib
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import canvasapi
 from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl
@@ -37,7 +37,7 @@ class Student:
     first_name: str = field(init=False)
     last_name: str = field(init=False)
     notes: str | None = None
-    photo: pathlib.Path | None = None
+    photo: Path | None = None
 
     def __post_init__(self):
         # Parse human names, allowing for underscores to group parts of the name
@@ -120,8 +120,8 @@ class CanvasSubmission(CanvasSubmissionAttempt):
 
 class CanvasFolder(BaseModel):
     id: int
-    name: str
-    full_name: str
+    name: Path
+    full_name: Path
     parent_folder_id: int | None = None
     context_type: str
     files_count: int
