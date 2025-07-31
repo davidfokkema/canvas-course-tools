@@ -1,3 +1,4 @@
+import pathlib
 from typing import Any, Generator
 
 import canvasapi
@@ -335,6 +336,59 @@ class CanvasTasks:
             ):
                 break
             full_url = httpx.URL(next_page)
+
+    def upload_file(
+        self,
+        course: Course,
+        file_path: pathlib.Path,
+        folder_path: pathlib.Path,
+        overwrite: bool = False,
+    ) -> None:
+        """Upload a file to a specific folder in a course.
+
+        Args:
+            course: the course to which the file will be uploaded.
+            file_path: the path to the file to upload.
+            folder_path: the path to the folder in which to upload the file.
+            overwrite: whether to overwrite an existing file with the same name.
+        """
+        # See https://developerdocs.instructure.com/services/canvas/basics/file.file_uploads
+        #
+        # Step 1: Telling Canvas about the file upload and getting a token
+        response = httpx.post(
+            f"{self._url}/api/v1/courses/{course.id}/files",
+            headers=self._headers,
+            params={
+                "name": file_path.name,
+                "size": file_path.stat().st_size,
+                "parent_folder_path": folder_path.as_posix(),
+                "on_duplicate": "overwrite" if overwrite else "rename",
+            },
+        )
+        response.raise_for_status()
+
+        # Step 2: Upload the file data to the URL given in the previous response
+        response_data = response.json()
+        url = response_data["upload_url"]
+        params = response_data.get("upload_params", {})
+        file = {"file": file_path.open("rb")}
+        response = httpx.post(url, data=params, files=file)
+        response.raise_for_status()
+
+        # Step 3: Confirm the upload's success
+        if response.is_redirect:
+            print("REDIRECTION TO CONFIRM UPLOAD")
+            assert response.next_request is not None, (
+                "Next request should be provided by Canvas API"
+            )
+            client = httpx.Client(headers=self._headers)
+            response = client.send(response.next_request)
+            response.raise_for_status()
+        else:
+            # If the response is not a redirect, we expect a 201 Created status
+            assert response.status_code == 201, (
+                f"Expected 201 Created, got {response.status_code}"
+            )
 
 
 def create_course_object(course: canvasapi.course.Course):
