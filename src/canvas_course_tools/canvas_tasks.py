@@ -489,21 +489,7 @@ class CanvasTasks:
         Raises:
             ValueError: The markdown does not conform to the expected structure.
         """
-        # Convert Markdown to HTML and extract the title
-        markdown = mistune.create_markdown(
-            escape=False,
-            plugins=["math", "footnotes", "superscript"],
-        )
-        html = markdown(content)
-        assert type(html) is str, "Something went wrong with the markdown conversion"
-        soup = BeautifulSoup(html, "html.parser")
-        h1 = soup.find("h1")
-        if h1 is None:
-            raise ValueError(
-                "Markdown content must contain a heading level 1 or an <h1> tag for the title."
-            )
-        title = h1.text.strip()
-        h1.decompose()
+        soup, title = self._convert_markdown(content)
 
         try:
             old_page = self.get_page_by_title(course, title)
@@ -521,6 +507,36 @@ class CanvasTasks:
         )
         response.raise_for_status()
         return CanvasPage.model_validate_json(response.text)
+
+    def _convert_markdown(self, content: str) -> tuple[BeautifulSoup, str]:
+        """Convert markdown content to HTML and extract the title.
+
+        Args:
+            content: the markdown content to convert.
+
+        Returns:
+            A tuple containing the BeautifulSoup object and the extracted title.
+
+        Raises:
+            AssertionError: The conversion failed.
+            ValueError: The markdown content does not contain a heading level 1
+        """
+        markdown = mistune.create_markdown(
+            escape=False, plugins=["math", "footnotes", "superscript"]
+        )
+        html = markdown(content)
+        assert type(html) is str, "Something went wrong with the markdown conversion"
+        soup = BeautifulSoup(html, "html.parser")
+        h1 = soup.find("h1")
+        if h1 is None:
+            raise ValueError(
+                "Markdown content must contain a heading level 1 or an <h1> tag for the title."
+            )
+        title = h1.text.strip()
+        # Remove the <h1> tag from the soup, as it is not needed in the final HTML
+        h1.decompose()
+        # Return the modified soup and the title
+        return soup, title
 
 
 def create_course_object(course: canvasapi.course.Course):
