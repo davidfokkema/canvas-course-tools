@@ -341,7 +341,7 @@ class CanvasTasks:
         self,
         course: Course,
         file_path: pathlib.Path,
-        folder_path: pathlib.Path,
+        folder_path: pathlib.Path | None = None,
         overwrite: bool = False,
     ) -> None:
         """Upload a file to a specific folder in a course.
@@ -361,7 +361,7 @@ class CanvasTasks:
             params={
                 "name": file_path.name,
                 "size": file_path.stat().st_size,
-                "parent_folder_path": folder_path.as_posix(),
+                "parent_folder_path": folder_path.as_posix() if folder_path else None,
                 "on_duplicate": "overwrite" if overwrite else "rename",
             },
         )
