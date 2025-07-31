@@ -234,6 +234,7 @@ class CanvasTasks:
             headers=self._headers,
             params={"include[]": ["submission_history", "submission_comments"]},
         )
+        response.raise_for_status()
         return CanvasSubmission.model_validate_json(response.text)
 
     def get_folders(
@@ -325,6 +326,7 @@ class CanvasTasks:
         full_url = httpx.URL(url).copy_merge_params(params or {})
         while True:
             response = httpx.get(url=full_url, headers=self._headers)
+            response.raise_for_status()
             yield response.text
 
             if (
