@@ -44,7 +44,7 @@ def add_server(alias, url, token, force):
 
     Example:
 
-        canvas servers add school http://canvas.school.example.com/ 123~secret
+        canvas servers add school https://canvas.school.example.com/ 123~secret
     """
     config = configfile.read_config()
     servers = config.setdefault("servers", {})

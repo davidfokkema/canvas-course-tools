@@ -40,10 +40,11 @@ Changelog = "https://github.com/davidfokkema/canvas-course-tools/blob/main/CHANG
 
 [project.scripts]
 canvas = "canvas_course_tools.cli:cli"
+canvas-course-tools = "canvas_course_tools.cli:cli"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.9.0,<0.10.0"]
+build-backend = "uv_build"
 
 [dependency-groups]
 dev = ["ipython>=9.3.0"]

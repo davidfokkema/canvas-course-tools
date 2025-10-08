@@ -18,12 +18,15 @@ Especially for grading, it can be very helpful to review small groups of student
 
 ## Installation
 
-You can install using `pip` in any Python environment, but the recommended way to install canvas-course-tools is using [pipx](https://pypa.github.io/pipx/):
+You can install using `pip` in any Python environment, but the recommended way to install canvas-course-tools is using [uv](https://docs.astral.sh/uv/):
 ```console
-$ pipx install canvas-course-tools
+$ uv tool install canvas-course-tools
 ```
-The `canvas` utility is available from the terminal.
-
+The `canvas` utility is available from the terminal. You can also run the tool without installing with:
+```console
+$ uvx canvas-course-tools
+```
+This has the benefit that you're always using the latest version, but it is a bit more to type than `canvas`.
 
 ## Tutorial
 
@@ -88,30 +91,34 @@ $ canvas servers add --help
 
  Register an alias for a server with corresponding access token.
  Example:
- canvas servers add school http://canvas.school.example.com/ 123~secret
+ canvas servers add school https://canvas.school.example.com/ 123~secret
 
 ╭─ Options ────────────────────────────────────────────────────────────╮
 │ --force  -f    If alias already exists, force overwrite.             │
 │ --help         Show this message and exit.                           │
 ╰──────────────────────────────────────────────────────────────────────╯
 ```
-That helps! The output even gives an example of how to use the command.
-Here, the alias `school` is used to refer to your institution's Canvas.
-You can use this alias in other `canvas` commands when we need to refer to the Canvas server.
-The `123~secret` should be the text of an access token that you can generate in your account page in Canvas.
-For more information, please see the [Canvas documentation](https://canvas.instructure.com/doc/api/file.oauth.html#manual-token-generation) on how to generate tokens.
-You can only view your token once.
-If you lose it, you can revoke it from your Canvas profile page and generate a new one.
-Once you've created your token, use it to add the server using the `canvas servers add` command as shown above.
-If successful, your Canvas installation should be available in the list:
+That helps! The output even gives an example of how to use the command. Here,
+the alias `school` is used to refer to your institution's Canvas. You can use
+this alias in other `canvas` commands when we need to refer to the Canvas
+server. The `123~secret` should be the text of an access token that you can
+generate in your account page in Canvas. For more information, please see the
+[Canvas
+documentation](https://canvas.instructure.com/doc/api/file.oauth.html#manual-token-generation)
+on how to generate tokens. Note that OAuth2 support will be added in the future,
+per the Canvas API policy. You can only view your token once. If you lose it,
+you can revoke it from your Canvas profile page and generate a new one. Once
+you've created your token, use it to add the server using the `canvas servers
+add` command as shown above. If successful, your Canvas installation should be
+available in the list:
 ```console
 $ canvas servers list
 
- ────────────────────────────────────────────
+ ─────────────────────────────────────────────
   Alias    URL
- ────────────────────────────────────────────
-  school   http://canvas.school.example.com/
- ────────────────────────────────────────────
+ ─────────────────────────────────────────────
+  school   https://canvas.school.example.com/
+ ─────────────────────────────────────────────
 ```
 Now that we have registered the Canvas server, we can use the utility to do some work.
 In the rest of this tutorial we will be more brief on how to use the different commands.
