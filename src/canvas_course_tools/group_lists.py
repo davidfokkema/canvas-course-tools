@@ -8,7 +8,7 @@ from rich.console import Console
 
 from canvas_course_tools.datatypes import GroupList, Student, StudentGroup
 
-PARSE_STUDENT_RE = re.compile("(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
+PARSE_STUDENT_RE = re.compile(r"(?P<name>.*) \((?P<id>.*)\) *(?:\[(?P<notes>.*)\])?")
 
 
 def parse_group_list(text, photo_dir=None, relative_to=None):
