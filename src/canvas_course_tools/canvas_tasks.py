@@ -33,6 +33,12 @@ class CanvasTasks:
         self._url = url
         self._headers = {"Authorization": f"Bearer {token}"}
 
+    def __str__(self) -> str:
+        return f"Canvas server at {self._url}"
+
+    def __repr__(self) -> str:
+        return f"CanvasTasks({self._url})"
+
     def list_courses(self):
         """List Canvas courses.
 
