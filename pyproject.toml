@@ -49,8 +49,10 @@ build-backend = "uv_build"
 dev = [
     "ipython>=9.3.0",
     "ruff>=0.14.13",
+    "ty>=0.0.12",
 ]
 
 [tool.poe.tasks]
 format = "ruff format"
 fix = "ruff check --fix"
+typecheck = "ty check"

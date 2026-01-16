@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, TypeVar
 
 import httpx
 from pydantic import BaseModel
@@ -13,6 +13,8 @@ from canvas_course_tools.datatypes import (
     Section,
     Student,
 )
+
+T_BaseModel = TypeVar("T_BaseModel", bound=BaseModel)
 
 
 class CanvasObjectExistsError(Exception):
@@ -101,10 +103,10 @@ class CanvasTasks:
     def _get_single_object(
         self,
         path: str,
-        model: Type[BaseModel],
+        model: Type[T_BaseModel],
         params: dict | None = None,
         context: dict | None = None,
-    ) -> BaseModel:
+    ) -> T_BaseModel:
         """Get a single object from an API endpoint.
 
         Args:
@@ -129,10 +131,10 @@ class CanvasTasks:
     def _post_object(
         self,
         path: str,
-        model: Type[BaseModel],
+        model: Type[T_BaseModel],
         json: dict | None = None,
         context: dict | None = None,
-    ) -> BaseModel:
+    ) -> T_BaseModel:
         """Create an object via POST request to an API endpoint.
 
         Args:
@@ -188,10 +190,10 @@ class CanvasTasks:
     def _get_paginated_list(
         self,
         path: str,
-        model: Type[BaseModel],
+        model: Type[T_BaseModel],
         params: dict | None = None,
         context: dict | None = None,
-    ) -> list:
+    ) -> list[T_BaseModel]:
         """Get a list of objects from a paginated API endpoint."""
         items = []
         url = path
