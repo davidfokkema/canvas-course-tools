@@ -2,7 +2,15 @@ import pathlib
 from dataclasses import dataclass, field
 
 import canvasapi
-from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl, field_validator
+from pydantic import (
+    AliasChoices,
+    AwareDatetime,
+    BaseModel,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
 
 
 class Course(BaseModel):
@@ -30,21 +38,24 @@ class Group(BaseModel):
     name: str
 
 
-@dataclass
-class Student:
+class Student(BaseModel):
     id: int
-    name: str
+    # The API returns 'short_name', which we map to 'name'
+    name: str = Field(validation_alias="short_name")
     sortable_name: str | None = None
-    first_name: str = field(init=False)
-    last_name: str = field(init=False)
+    first_name: str = ""
+    last_name: str = ""
     notes: str | None = None
     photo: pathlib.Path | None = None
 
-    def __post_init__(self):
-        # Parse human names, allowing for underscores to group parts of the name
-        self.first_name, _, self.last_name = self.name.partition(" ")
-        self.first_name = self.first_name.replace("_", " ")
-        self.name = self.name.replace("_", " ")
+    @model_validator(mode="after")
+    def set_first_last_name(self) -> "Student":
+        """Parse full name into first and last names."""
+        # Replace underscores used to group multi-word names
+        parsed_name = self.name.replace("_", " ")
+        self.first_name, _, self.last_name = parsed_name.partition(" ")
+        self.name = parsed_name
+        return self
 
 
 @dataclass

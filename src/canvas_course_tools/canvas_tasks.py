@@ -1,11 +1,11 @@
 import hashlib
+from typing import Type
 
 import canvasapi
 import httpx
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 from pydantic import BaseModel
-from typing import Type
 
 from canvas_course_tools.datatypes import (
     Assignment,
@@ -91,23 +91,25 @@ class CanvasTasks:
             response.raise_for_status()
             return Course.model_validate(response.json())
 
-    def get_students(self, course_id, show_test_student=False):
+    def get_students(
+        self, course_id: int, show_test_student: bool = False
+    ) -> list[Student]:
         """Get all students in a course.
 
         Args:
-            course_id (integer): the Canvas course id
-            show_test_student (bool): if True, include the Test Student
+            course_id: The ID of the Canvas course.
+            show_test_student: If True, include the "Test Student" in the results.
 
         Returns:
-            list: a list of student objects
+            A list of Student objects.
         """
-        course = self.canvas.get_course(course_id)
+        path = f"/api/v1/courses/{course_id}/users"
         if show_test_student:
-            enrollment_type = ["student", "student_view"]
+            params = {"enrollment_type[]": ["student", "student_view"]}
         else:
-            enrollment_type = ["student"]
-        students = course.get_users(enrollment_type=enrollment_type)
-        return [create_student_object(student) for student in students]
+            params = {"enrollment_type[]": ["student"]}
+
+        return self._get_paginated_list(path, Student, params=params)
 
     def get_sections(self, course_id):
         """Get a list of sections, including students
@@ -269,11 +271,3 @@ class CanvasTasks:
             params={"include[]": ["submission_history", "submission_comments"]},
         )
         return CanvasSubmission.model_validate_json(response.text)
-
-
-def create_student_object(student: canvasapi.user.User):
-    return Student(
-        id=student.id,
-        name=student.short_name,
-        sortable_name=student.sortable_name,
-    )
