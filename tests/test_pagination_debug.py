@@ -36,48 +36,41 @@ def main():
     print(f"--- Getting credentials for server: '{SERVER_ALIAS}' ---")
     try:
         canvas_tasks = get_canvas(SERVER_ALIAS)
-        url = canvas_tasks._url
+        base_url = canvas_tasks._url
         headers = canvas_tasks._headers
     except Exception as e:
         print(f"Error getting credentials: {e}")
         print("Please ensure your config file is set up correctly.")
         return
 
-    # --- 1. FIRST REQUEST ---
-    first_request_url = f"{url}/api/v1/courses"
-    print(f"\n--- 1. Making FIRST request to: {first_request_url} with params: {COURSES_PARAMS} ---")
+    with httpx.Client(base_url=base_url, headers=headers) as client:
+        # Initialize loop variables
+        next_url = "/api/v1/courses"
+        params = COURSES_PARAMS
+        request_count = 0
 
-    try:
-        response1 = httpx.get(first_request_url, headers=headers, params=COURSES_PARAMS)
-        response1.raise_for_status()
-    except httpx.HTTPError as e:
-        print(f"HTTP error on first request: {e}")
-        return
+        while next_url:
+            request_count += 1
+            print(f"\n--- Making request #{request_count} to: {next_url} ---")
 
-    response1_json = response1.json()
-    validate_courses("FIRST RESPONSE", response1_json)
+            try:
+                response = client.get(next_url, params=params)
+                response.raise_for_status()
+            except httpx.HTTPError as e:
+                print(f"HTTP error on request #{request_count}: {e}")
+                break  # Exit loop on error
 
-    # --- 2. EXTRACT NEXT URL AND PREPARE FOR SECOND REQUEST ---
-    next_url = response1.links.get("next", {}).get("url")
+            response_json = response.json()
+            validate_courses(f"RESPONSE #{request_count}", response_json)
 
-    if not next_url:
-        print("\n--- No 'next' link found. Cannot make second request. ---")
-        return
+            # Get the URL for the next iteration
+            next_url = response.links.get("next", {}).get("url")
 
-    print(f"\n--- 2. Extracted NEXT request URL from Link header: {next_url} ---")
-    print("--- Making SECOND request to this opaque URL with NO additional params ---")
+            # Clear params after the first request, as the next_url is opaque
+            if params:
+                params = None
 
-    try:
-        response2 = httpx.get(next_url, headers=headers)
-        response2.raise_for_status()
-    except httpx.HTTPError as e:
-        print(f"HTTP error on second request: {e}")
-        return
-
-    response2_json = response2.json()
-    validate_courses("SECOND RESPONSE", response2_json)
-
-    print("\n--- Script finished. ---")
+    print(f"\n--- Loop finished after {request_count} request(s). ---")
 
 
 if __name__ == "__main__":

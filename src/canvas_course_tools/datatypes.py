@@ -2,17 +2,22 @@ import pathlib
 from dataclasses import dataclass, field
 
 import canvasapi
-from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl
+from pydantic import AliasChoices, AwareDatetime, BaseModel, Field, HttpUrl, field_validator
 
 
-@dataclass
-class Course:
+class Course(BaseModel):
     id: int
     name: str
     course_code: str
     term: str
     alias: str | None = None
-    _course: canvasapi.course.Course | None = field(default=None, repr=False)
+
+    @field_validator("term", mode="before")
+    @classmethod
+    def term_to_str(cls, v):
+        if isinstance(v, dict) and "name" in v:
+            return v["name"]
+        return v
 
 
 @dataclass

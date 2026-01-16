@@ -1,3 +1,5 @@
+import hashlib
+
 import canvasapi
 import httpx
 from canvasapi import Canvas
@@ -39,14 +41,33 @@ class CanvasTasks:
     def __repr__(self) -> str:
         return f"CanvasTasks({self._url})"
 
-    def list_courses(self):
-        """List Canvas courses.
+    def list_courses(self) -> list[Course]:
+        """List all Canvas courses, handling pagination.
 
         Returns:
             A list of Canvas course objects.
         """
-        courses = self.canvas.get_courses(include=["term"])
-        return [create_course_object(course) for course in courses]
+        courses = []
+        url = "/api/v1/courses"
+        params = {"include[]": "term", "per_page": 100}
+
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            while url:
+                response = client.get(url, params=params)
+                response.raise_for_status()
+                courses.extend(
+                    [Course.model_validate(item) for item in response.json()]
+                )
+
+                # Get the URL for the next page from the Link header
+                url = response.links.get("next", {}).get("url")
+
+                # After the first request, the next_url is opaque and contains all params.
+                # Set params to None to avoid sending conflicting or duplicate parameters.
+                if params:
+                    params = None
+
+        return courses
 
     def get_course(self, course_id):
         """Get a Canvas course by id.
@@ -233,16 +254,6 @@ class CanvasTasks:
             params={"include[]": ["submission_history", "submission_comments"]},
         )
         return CanvasSubmission.model_validate_json(response.text)
-
-
-def create_course_object(course: canvasapi.course.Course):
-    return Course(
-        id=course.id,
-        name=course.name,
-        course_code=course.course_code,
-        term=course.term["name"],
-        _course=course,
-    )
 
 
 def create_student_object(student: canvasapi.user.User):
