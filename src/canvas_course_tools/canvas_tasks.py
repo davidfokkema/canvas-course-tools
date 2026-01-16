@@ -179,7 +179,7 @@ class CanvasTasks:
             GroupSet: the requests groupset object.
         """
         groupset = self.canvas.get_group_category(group_set_id)
-        return GroupSet(id=groupset.id, name=groupset.name, _group_set=groupset)
+        return GroupSet(id=groupset.id, name=groupset.name)
 
     def create_group(self, group_name: str, group_set: GroupSet) -> Group:
         """Create a group inside a GroupSet.
