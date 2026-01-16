@@ -124,29 +124,38 @@ class CanvasTasks:
         params = {"include[]": ["students"]}
         return self._get_paginated_list(path, Section, params=params)
 
-    def create_groupset(self, name, course, overwrite):
-        """Create groupset in course.
+    def create_groupset(self, name: str, course: Course, overwrite: bool) -> GroupSet:
+        """Create a groupset in a course.
 
         Args:
-            name (string): name of the groupset
-            course (Course): the course in which to create the groupset
-            overwrite (bool): whether or not to overwrite an existing groupset
+            name: Name of the groupset.
+            course: The course in which to create the groupset.
+            overwrite: If True, delete any existing groupset with the same name.
 
         Returns:
-            GroupSet: the newly created groupset
+            The newly created GroupSet object.
         """
-        canvas_course = self.canvas.get_course(course.id)
-        groupsets = list(canvas_course.get_group_categories())
-        groupset_names = [g.name for g in groupsets]
-        if name in groupset_names:
-            if not overwrite:
-                raise CanvasObjectExistsError("Groupset already exists.")
-            else:
-                for groupset in [g for g in groupsets if g.name == name]:
-                    # we don't expect groupset with the same name, but delete them all in any case
-                    groupset.delete()
-        groupset = canvas_course.create_group_category(name)
-        return GroupSet(id=groupset.id, name=name)
+        existing_groupsets = self.list_groupsets(course)
+
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            for groupset in existing_groupsets:
+                if groupset.name == name:
+                    if not overwrite:
+                        raise CanvasObjectExistsError("Groupset already exists.")
+                    else:
+                        # Issue a DELETE request
+                        delete_resp = client.delete(
+                            f"/api/v1/group_categories/{groupset.id}"
+                        )
+                        delete_resp.raise_for_status()
+
+            # Issue a POST request to create the new groupset
+            create_resp = client.post(
+                f"/api/v1/courses/{course.id}/group_categories",
+                json={"name": name},
+            )
+            create_resp.raise_for_status()
+            return GroupSet.model_validate(create_resp.json())
 
     def list_groupsets(self, course: Course) -> list[GroupSet]:
         """List groupsets in a course.
@@ -172,20 +181,23 @@ class CanvasTasks:
         groupset = self.canvas.get_group_category(group_set_id)
         return GroupSet(id=groupset.id, name=groupset.name, _group_set=groupset)
 
-    def create_group(self, group_name, group_set):
+    def create_group(self, group_name: str, group_set: GroupSet) -> Group:
         """Create a group inside a GroupSet.
 
         Args:
-            group_name (str): name of the group to create.
-            group_set (GroupSet): the GroupSet in which the group will be
-                created.
+            group_name: Name of the group to create.
+            group_set: The GroupSet in which the group will be created.
 
         Returns:
-            Group: the newly created group.
+            The newly created Group object.
         """
-        groupset = self.canvas.get_group_category(group_set.id)
-        group = groupset.create_group(name=group_name)
-        return Group(id=group.id, name=group_name)
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.post(
+                f"/api/v1/group_categories/{group_set.id}/groups",
+                json={"name": group_name},
+            )
+            response.raise_for_status()
+            return Group.model_validate(response.json())
 
     def list_groups(self, group_set: GroupSet) -> list[Group]:
         """List groups in a groupset.
@@ -199,15 +211,19 @@ class CanvasTasks:
         path = f"/api/v1/group_categories/{group_set.id}/groups"
         return self._get_paginated_list(path, Group)
 
-    def add_student_to_group(self, student, group):
-        """Add student to a group.
+    def add_student_to_group(self, student: Student, group: Group) -> None:
+        """Add a student to a group.
 
         Args:
-            student (Student): the student to add to the group.
-            group (Group): the group in which to place the student.
+            student: The student to add to the group.
+            group: The group in which to place the student.
         """
-        canvas_group = self.canvas.get_group(group.id)
-        canvas_group.create_membership(student.id)
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.post(
+                f"/api/v1/groups/{group.id}/memberships",
+                json={"user_id": student.id},
+            )
+            response.raise_for_status()
 
     def get_students_in_group(self, group: Group) -> list[Student]:
         students = group._group.get_users()

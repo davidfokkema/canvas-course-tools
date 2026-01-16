@@ -40,8 +40,8 @@ class Group(BaseModel):
 
 class Student(BaseModel):
     id: int
-    # The API returns 'short_name', which we map to 'name'
-    name: str = Field(validation_alias="short_name")
+    # The API returns 'short_name', but we also want to allow 'name' for direct instantiation.
+    name: str = Field(validation_alias=AliasChoices("short_name", "name"))
     sortable_name: str | None = None
     first_name: str = ""
     last_name: str = ""
