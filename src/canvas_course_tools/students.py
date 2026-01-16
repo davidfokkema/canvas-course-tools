@@ -1,6 +1,5 @@
 import rich_click as click
 
-from canvas_course_tools import configfile
 from canvas_course_tools.utils import find_course, get_canvas
 
 
@@ -31,11 +30,12 @@ def list_students(course_alias, all):
             print(f"{student.name} ({student.id})")
     else:
         for section in canvas.get_sections(course.id):
-            print(f"## {section.name}\n")
-            section.students.sort(key=lambda x: x.sortable_name)
-            for student in section.students:
-                print(f"{student.name} ({student.id})")
-            print("\n")
+            if section.students:
+                print(f"## {section.name}\n")
+                section.students.sort(key=lambda x: x.sortable_name)
+                for student in section.students:
+                    print(f"{student.name} ({student.id})")
+                print("\n")
 
 
 @students.command("listgroups")

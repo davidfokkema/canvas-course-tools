@@ -1,6 +1,5 @@
 import pathlib
 
-import canvasapi
 from pydantic import (
     AliasChoices,
     AwareDatetime,
@@ -88,6 +87,14 @@ class Section(BaseModel):
     id: int
     name: str
     students: list[Student] = []
+
+    @field_validator("students", mode="before")
+    @classmethod
+    def handle_null_students(cls, v):
+        if v is None:
+            return []
+        else:
+            return v
 
 
 class StudentGroup(BaseModel):
