@@ -4,6 +4,8 @@ import canvasapi
 import httpx
 from canvasapi import Canvas
 from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
+from pydantic import BaseModel
+from typing import Type
 
 from canvas_course_tools.datatypes import (
     Assignment,
@@ -41,39 +43,43 @@ class CanvasTasks:
     def __repr__(self) -> str:
         return f"CanvasTasks({self._url})"
 
+    def _get_paginated_list(
+        self, path: str, model: Type[BaseModel], params: dict | None = None
+    ) -> list:
+        """Get a list of objects from a paginated API endpoint."""
+        items = []
+        url = path
+        # Use a copy of params so we can modify it for the first request
+        request_params = params.copy() if params else {}
+        request_params["per_page"] = 100
+
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            while url:
+                response = client.get(url, params=request_params)
+                response.raise_for_status()
+                items.extend([model.model_validate(item) for item in response.json()])
+
+                url = response.links.get("next", {}).get("url")
+                # Subsequent requests use the opaque URL, so no params are needed.
+                if request_params:
+                    request_params = None
+        return items
+
     def list_courses(self) -> list[Course]:
         """List all Canvas courses, handling pagination.
 
         Returns:
-            A list of Canvas course objects.
+            A list of all available Canvas course objects.
         """
-        courses = []
-        url = "/api/v1/courses"
-        params = {"include[]": "term", "per_page": 100}
-
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            while url:
-                response = client.get(url, params=params)
-                response.raise_for_status()
-                courses.extend(
-                    [Course.model_validate(item) for item in response.json()]
-                )
-
-                # Get the URL for the next page from the Link header
-                url = response.links.get("next", {}).get("url")
-
-                # After the first request, the next_url is opaque and contains all params.
-                # Set params to None to avoid sending conflicting or duplicate parameters.
-                if params:
-                    params = None
-
-        return courses
+        return self._get_paginated_list(
+            "/api/v1/courses", Course, params={"include[]": "term"}
+        )
 
     def get_course(self, course_id: int) -> Course:
         """Get a Canvas course by id.
 
         Args:
-            course_id: a Canvas course id.
+            course_id: The ID of the Canvas course.
 
         Returns:
             A Canvas course object.
@@ -159,27 +165,13 @@ class CanvasTasks:
         """List groupsets in a course.
 
         Args:
-            course (Course): the course containing the groupsets.
+            course: The course object containing the groupsets.
 
         Returns:
-            list[GroupSet]: a list of GroupSet objects.
+            A list of GroupSet objects.
         """
-        groupsets = []
-        url = f"/api/v1/courses/{course.id}/group_categories"
-        params = {"per_page": 100}
-
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            while url:
-                response = client.get(url, params=params)
-                response.raise_for_status()
-                groupsets.extend(
-                    [GroupSet.model_validate(item) for item in response.json()]
-                )
-
-                url = response.links.get("next", {}).get("url")
-                if params:
-                    params = None
-        return groupsets
+        path = f"/api/v1/courses/{course.id}/group_categories"
+        return self._get_paginated_list(path, GroupSet)
 
     def get_groupset(self, group_set_id: int) -> GroupSet:
         """Get a groupset by id
@@ -212,25 +204,13 @@ class CanvasTasks:
         """List groups in a groupset.
 
         Args:
-            group_set (GroupSet): the groupset containing the groups.
+            group_set: The groupset object containing the groups.
 
         Returns:
-            list[Group]: a list of Group objects.
+            A list of Group objects.
         """
-        groups = []
-        url = f"/api/v1/group_categories/{group_set.id}/groups"
-        params = {"per_page": 100}
-
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            while url:
-                response = client.get(url, params=params)
-                response.raise_for_status()
-                groups.extend([Group.model_validate(item) for item in response.json()])
-
-                url = response.links.get("next", {}).get("url")
-                if params:
-                    params = None
-        return groups
+        path = f"/api/v1/group_categories/{group_set.id}/groups"
+        return self._get_paginated_list(path, Group)
 
     def add_student_to_group(self, student, group):
         """Add student to a group.
