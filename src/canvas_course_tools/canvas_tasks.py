@@ -226,8 +226,16 @@ class CanvasTasks:
             response.raise_for_status()
 
     def get_students_in_group(self, group: Group) -> list[Student]:
-        students = group._group.get_users()
-        return [create_student_object(student) for student in students]
+        """Get a list of all students in a particular group.
+
+        Args:
+            group: The group object from which to get students.
+
+        Returns:
+            A list of Student objects.
+        """
+        path = f"/api/v1/groups/{group.id}/users"
+        return self._get_paginated_list(path, Student)
 
     def get_assignment_groups(self, course: Course) -> list[AssignmentGroup]:
         groups = course._course.get_assignment_groups()
