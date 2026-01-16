@@ -37,21 +37,21 @@ class CanvasGroup(click.Group):
         except IncorrectURL as e:
             print(f"[bold red]Connection Error:[/bold red] {e}", file=sys.stderr)
             ctx.exit(1)
-        except CanvasInvalidAccessToken as e:
+        except CanvasInvalidAccessToken:
             print(
-                f"[bold red]Authentication Error:[/bold red] Invalid access token. Please update your credentials.",
+                "[bold red]Authentication Error:[/bold red] Invalid access token. Please update your credentials.",
                 file=sys.stderr,
             )
             ctx.exit(1)
-        except CanvasForbidden as e:
+        except CanvasForbidden:
             print(
-                f"[bold red]Authorization Error:[/bold red] You don't have permission to access this resource.",
+                "[bold red]Authorization Error:[/bold red] You don't have permission to access this resource.",
                 file=sys.stderr,
             )
             ctx.exit(1)
-        except CanvasResourceDoesNotExist as e:
+        except CanvasResourceDoesNotExist:
             print(
-                f"[bold red]Not Found:[/bold red] The requested resource does not exist.",
+                "[bold red]Not Found:[/bold red] The requested resource does not exist.",
                 file=sys.stderr,
             )
             ctx.exit(1)

@@ -94,10 +94,10 @@ def add_course(alias, course_id, server_alias, update):
             try:
                 canvas.get_course(course_id)
             except CanvasResourceDoesNotExist:
-                print(f"[bold red]This course ID does not exist.[/bold red]")
+                print("[bold red]This course ID does not exist.[/bold red]")
             except CanvasForbidden:
                 print(
-                    f"[bold red]You don't have authorization for this course.[/bold red]"
+                    "[bold red]You don't have authorization for this course.[/bold red]"
                 )
             else:
                 courses[alias] = {"server": server_alias, "course_id": course_id}

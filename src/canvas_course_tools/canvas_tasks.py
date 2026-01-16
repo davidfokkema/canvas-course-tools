@@ -1,9 +1,6 @@
-import hashlib
 from typing import Type
 
-import canvasapi
 import httpx
-from canvasapi import Canvas
 from pydantic import BaseModel
 
 from canvas_course_tools.datatypes import (
@@ -62,7 +59,6 @@ class CanvasTasks:
             url: a string containing the Canvas server URL
             token: a string containing the Canvas API access token
         """
-        self.canvas = Canvas(url, token)
         self._url = url
         self._headers = {"Authorization": f"Bearer {token}"}
 
