@@ -14,7 +14,7 @@ from pydantic import (
 
 class Course(BaseModel):
     id: int
-    name: str
+    name: str = ""
     course_code: str
     term: str
     alias: str | None = None
