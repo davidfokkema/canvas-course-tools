@@ -10,6 +10,7 @@ from pydantic import (
     HttpUrl,
     field_validator,
     model_validator,
+    ValidationInfo,
 )
 
 
@@ -28,7 +29,32 @@ class Course(BaseModel):
         return v
 
 
-class GroupSet(BaseModel):
+class AssignmentGroup(BaseModel):
+    id: int
+    name: str
+    course: Course
+
+    @model_validator(mode="before")
+    @classmethod
+    def add_course_from_context(cls, data, info: ValidationInfo):
+        """
+        Populates the 'course' field from the validation context.
+        This validator runs before individual fields are validated.
+        """
+        if isinstance(data, dict):
+            # Only add course if it's not already in the data
+            if "course" not in data:
+                if info.context and "course" in info.context:
+                    # Make a copy to avoid mutating the original
+                    data = data.copy()
+                    data["course"] = info.context["course"]
+                else:
+                    raise ValueError("AssignmentGroup requires 'course' in validation context")
+        return data
+
+
+@dataclass
+class GroupSet:
     id: int
     name: str
 
@@ -76,20 +102,29 @@ class GroupList:
     groups: list[StudentGroup] = field(default_factory=list)
 
 
-@dataclass
-class AssignmentGroup:
-    id: int
-    name: str
-    course: Course
-
-
-@dataclass
-class Assignment:
+class Assignment(BaseModel):
     id: int
     name: str
     course: Course
     submission_types: list[str]
-    _api: canvasapi.assignment.Assignment | None = field(default=None, repr=False)
+
+    @model_validator(mode="before")
+    @classmethod
+    def add_course_from_context(cls, data, info: ValidationInfo):
+        """
+        Populates the 'course' field from the validation context.
+        This validator runs before individual fields are validated.
+        """
+        if isinstance(data, dict):
+            # Only add course if it's not already in the data
+            if "course" not in data:
+                if info.context and "course" in info.context:
+                    # Make a copy to avoid mutating the original
+                    data = data.copy()
+                    data["course"] = info.context["course"]
+                else:
+                    raise ValueError("Assignment requires 'course' in validation context")
+        return data
 
 
 class CanvasAttachment(BaseModel):

@@ -44,7 +44,11 @@ class CanvasTasks:
         return f"CanvasTasks({self._url})"
 
     def _get_paginated_list(
-        self, path: str, model: Type[BaseModel], params: dict | None = None
+        self,
+        path: str,
+        model: Type[BaseModel],
+        params: dict | None = None,
+        context: dict | None = None,
     ) -> list:
         """Get a list of objects from a paginated API endpoint."""
         items = []
@@ -57,7 +61,12 @@ class CanvasTasks:
             while url:
                 response = client.get(url, params=request_params)
                 response.raise_for_status()
-                items.extend([model.model_validate(item) for item in response.json()])
+                items.extend(
+                    [
+                        model.model_validate(item, context=context)
+                        for item in response.json()
+                    ]
+                )
 
                 url = response.links.get("next", {}).get("url")
                 # Subsequent requests use the opaque URL, so no params are needed.
@@ -238,24 +247,42 @@ class CanvasTasks:
         return self._get_paginated_list(path, Student)
 
     def get_assignment_groups(self, course: Course) -> list[AssignmentGroup]:
-        groups = course._course.get_assignment_groups()
-        return [
-            AssignmentGroup(id=group.id, name=group.name, course=course)
-            for group in groups
-        ]
+        """Get all assignment groups in a course.
+
+        Args:
+            course: The course object.
+
+        Returns:
+            A list of AssignmentGroup objects.
+        """
+        path = f"/api/v1/courses/{course.id}/assignment_groups"
+        return self._get_paginated_list(
+            path, AssignmentGroup, context={"course": course}
+        )
 
     def get_assignments_for_group(self, group: AssignmentGroup) -> list[Assignment]:
-        assignments = group.course._course.get_assignments_for_group(group.id)
-        return [
-            Assignment(
-                id=assignment.id,
-                name=assignment.name,
-                course=group.course,
-                submission_types=assignment.submission_types,
-                _api=assignment,
-            )
-            for assignment in assignments
-        ]
+        """Get all assignments in an assignment group.
+
+        Args:
+            group: The assignment group object.
+
+        Returns:
+            A list of Assignment objects.
+        """
+        path = f"/api/v1/courses/{group.course.id}/assignment_groups/{group.id}"
+        params = {"include[]": ["assignments"]}
+        
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.get(path, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            # The API returns the assignment group with nested assignments
+            assignments_data = data.get("assignments", [])
+            return [
+                Assignment.model_validate(item, context={"course": group.course})
+                for item in assignments_data
+            ]
 
     def get_submissions(
         self, assignment: Assignment, student: Student
