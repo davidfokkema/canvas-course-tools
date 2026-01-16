@@ -4,4 +4,5 @@ canvas = get_canvas("vu")
 
 courses = canvas.list_courses()
 
-print(f"{canvas.get_course(courses[0].id)=}")
+course = canvas.get_course(85692)
+print(f"{canvas.list_groupsets(course)=}")

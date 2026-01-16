@@ -164,11 +164,22 @@ class CanvasTasks:
         Returns:
             list[GroupSet]: a list of GroupSet objects.
         """
-        groupsets = course._course.get_group_categories()
-        return [
-            GroupSet(id=groupset.id, name=groupset.name, _group_set=groupset)
-            for groupset in groupsets
-        ]
+        groupsets = []
+        url = f"/api/v1/courses/{course.id}/group_categories"
+        params = {"per_page": 100}
+
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            while url:
+                response = client.get(url, params=params)
+                response.raise_for_status()
+                groupsets.extend(
+                    [GroupSet.model_validate(item) for item in response.json()]
+                )
+
+                url = response.links.get("next", {}).get("url")
+                if params:
+                    params = None
+        return groupsets
 
     def get_groupset(self, group_set_id: int) -> GroupSet:
         """Get a groupset by id
@@ -198,8 +209,28 @@ class CanvasTasks:
         return Group(id=group.id, name=group_name)
 
     def list_groups(self, group_set: GroupSet) -> list[Group]:
-        groups = group_set._group_set.get_groups()
-        return [Group(id=group.id, name=group.name, _group=group) for group in groups]
+        """List groups in a groupset.
+
+        Args:
+            group_set (GroupSet): the groupset containing the groups.
+
+        Returns:
+            list[Group]: a list of Group objects.
+        """
+        groups = []
+        url = f"/api/v1/group_categories/{group_set.id}/groups"
+        params = {"per_page": 100}
+
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            while url:
+                response = client.get(url, params=params)
+                response.raise_for_status()
+                groups.extend([Group.model_validate(item) for item in response.json()])
+
+                url = response.links.get("next", {}).get("url")
+                if params:
+                    params = None
+        return groups
 
     def add_student_to_group(self, student, group):
         """Add student to a group.

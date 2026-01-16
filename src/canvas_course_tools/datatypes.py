@@ -20,18 +20,14 @@ class Course(BaseModel):
         return v
 
 
-@dataclass
-class GroupSet:
+class GroupSet(BaseModel):
     id: int
     name: str
-    _group_set: canvasapi.group.GroupCategory | None = field(default=None, repr=False)
 
 
-@dataclass
-class Group:
+class Group(BaseModel):
     id: int
     name: str
-    _group: canvasapi.group.Group | None = field(default=None, repr=False)
 
 
 @dataclass
