@@ -23,6 +23,36 @@ class CanvasObjectExistsError(Exception):
     pass
 
 
+class IncorrectURL(Exception):
+    """Raised when the Canvas URL is incorrect or unreachable."""
+
+    pass
+
+
+class CanvasForbidden(Exception):
+    """Raised when access to a resource is forbidden (403)."""
+
+    pass
+
+
+class CanvasInvalidAccessToken(Exception):
+    """Raised when the API access token is invalid (401)."""
+
+    pass
+
+
+class CanvasResourceDoesNotExist(Exception):
+    """Raised when the requested resource does not exist (404)."""
+
+    pass
+
+
+class CanvasAPIError(Exception):
+    """Raised for other Canvas API errors."""
+
+    pass
+
+
 class CanvasTasks:
     """Collection of canvas-related tasks."""
 
@@ -43,6 +73,36 @@ class CanvasTasks:
     def __repr__(self) -> str:
         return f"CanvasTasks({self._url})"
 
+    def _handle_response_errors(self, response: httpx.Response) -> None:
+        """Convert httpx HTTP errors to specific Canvas exceptions.
+
+        Args:
+            response: The httpx Response object to check.
+
+        Raises:
+            CanvasInvalidAccessToken: On 401 Unauthorized.
+            CanvasForbidden: On 403 Forbidden.
+            CanvasResourceDoesNotExist: On 404 Not Found.
+            CanvasAPIError: On other HTTP errors.
+        """
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 401:
+                raise CanvasInvalidAccessToken(
+                    f"Invalid access token: {e.response.text}"
+                ) from e
+            elif e.response.status_code == 403:
+                raise CanvasForbidden(f"Access forbidden: {e.response.text}") from e
+            elif e.response.status_code == 404:
+                raise CanvasResourceDoesNotExist(
+                    f"Resource not found: {e.response.text}"
+                ) from e
+            else:
+                raise CanvasAPIError(
+                    f"Canvas API error ({e.response.status_code}): {e.response.text}"
+                ) from e
+
     def _get_single_object(
         self,
         path: str,
@@ -51,20 +111,25 @@ class CanvasTasks:
         context: dict | None = None,
     ) -> BaseModel:
         """Get a single object from an API endpoint.
-        
+
         Args:
             path: The API endpoint path.
             model: The Pydantic model to validate the response against.
             params: Optional query parameters.
             context: Optional validation context to pass to Pydantic.
-            
+
         Returns:
             A validated Pydantic model instance.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.get(path, params=params)
-            response.raise_for_status()
-            return model.model_validate(response.json(), context=context)
+        try:
+            with httpx.Client(base_url=self._url, headers=self._headers) as client:
+                response = client.get(path, params=params)
+                self._handle_response_errors(response)
+                return model.model_validate(response.json(), context=context)
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            raise IncorrectURL(
+                f"Cannot connect to Canvas server at {self._url}: {str(e)}"
+            ) from e
 
     def _post_object(
         self,
@@ -74,41 +139,56 @@ class CanvasTasks:
         context: dict | None = None,
     ) -> BaseModel:
         """Create an object via POST request to an API endpoint.
-        
+
         Args:
             path: The API endpoint path.
             model: The Pydantic model to validate the response against.
             json: Optional JSON body for the POST request.
             context: Optional validation context to pass to Pydantic.
-            
+
         Returns:
             A validated Pydantic model instance.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.post(path, json=json)
-            response.raise_for_status()
-            return model.model_validate(response.json(), context=context)
+        try:
+            with httpx.Client(base_url=self._url, headers=self._headers) as client:
+                response = client.post(path, json=json)
+                self._handle_response_errors(response)
+                return model.model_validate(response.json(), context=context)
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            raise IncorrectURL(
+                f"Cannot connect to Canvas server at {self._url}: {str(e)}"
+            ) from e
 
     def _post_no_response(self, path: str, json: dict | None = None) -> None:
         """Send a POST request that doesn't require a validated response.
-        
+
         Args:
             path: The API endpoint path.
             json: Optional JSON body for the POST request.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.post(path, json=json)
-            response.raise_for_status()
+        try:
+            with httpx.Client(base_url=self._url, headers=self._headers) as client:
+                response = client.post(path, json=json)
+                self._handle_response_errors(response)
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            raise IncorrectURL(
+                f"Cannot connect to Canvas server at {self._url}: {str(e)}"
+            ) from e
 
     def _delete_object(self, path: str) -> None:
         """Delete an object via DELETE request to an API endpoint.
-        
+
         Args:
             path: The API endpoint path.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.delete(path)
-            response.raise_for_status()
+        try:
+            with httpx.Client(base_url=self._url, headers=self._headers) as client:
+                response = client.delete(path)
+                self._handle_response_errors(response)
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            raise IncorrectURL(
+                f"Cannot connect to Canvas server at {self._url}: {str(e)}"
+            ) from e
 
     def _get_paginated_list(
         self,
@@ -124,22 +204,27 @@ class CanvasTasks:
         request_params = params.copy() if params else {}
         request_params["per_page"] = 100
 
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            while url:
-                response = client.get(url, params=request_params)
-                response.raise_for_status()
-                items.extend(
-                    [
-                        model.model_validate(item, context=context)
-                        for item in response.json()
-                    ]
-                )
+        try:
+            with httpx.Client(base_url=self._url, headers=self._headers) as client:
+                while url:
+                    response = client.get(url, params=request_params)
+                    self._handle_response_errors(response)
+                    items.extend(
+                        [
+                            model.model_validate(item, context=context)
+                            for item in response.json()
+                        ]
+                    )
 
-                url = response.links.get("next", {}).get("url")
-                # Subsequent requests use the opaque URL, so no params are needed.
-                if request_params:
-                    request_params = None
-        return items
+                    url = response.links.get("next", {}).get("url")
+                    # Subsequent requests use the opaque URL, so no params are needed.
+                    if request_params:
+                        request_params = None
+            return items
+        except (httpx.ConnectError, httpx.TimeoutException) as e:
+            raise IncorrectURL(
+                f"Cannot connect to Canvas server at {self._url}: {str(e)}"
+            ) from e
 
     def list_courses(self) -> list[Course]:
         """List all Canvas courses, handling pagination.
@@ -161,9 +246,7 @@ class CanvasTasks:
             A Canvas course object.
         """
         return self._get_single_object(
-            f"/api/v1/courses/{course_id}",
-            Course,
-            params={"include[]": "term"}
+            f"/api/v1/courses/{course_id}", Course, params={"include[]": "term"}
         )
 
     def get_students(
@@ -222,7 +305,7 @@ class CanvasTasks:
         return self._post_object(
             f"/api/v1/courses/{course.id}/group_categories",
             GroupSet,
-            json={"name": name}
+            json={"name": name},
         )
 
     def list_groupsets(self, course: Course) -> list[GroupSet]:
@@ -247,8 +330,7 @@ class CanvasTasks:
             The requested GroupSet object.
         """
         return self._get_single_object(
-            f"/api/v1/group_categories/{group_set_id}",
-            GroupSet
+            f"/api/v1/group_categories/{group_set_id}", GroupSet
         )
 
     def create_group(self, group_name: str, group_set: GroupSet) -> Group:
@@ -264,7 +346,7 @@ class CanvasTasks:
         return self._post_object(
             f"/api/v1/group_categories/{group_set.id}/groups",
             Group,
-            json={"name": group_name}
+            json={"name": group_name},
         )
 
     def list_groups(self, group_set: GroupSet) -> list[Group]:
@@ -287,8 +369,7 @@ class CanvasTasks:
             group: The group in which to place the student.
         """
         self._post_no_response(
-            f"/api/v1/groups/{group.id}/memberships",
-            json={"user_id": student.id}
+            f"/api/v1/groups/{group.id}/memberships", json={"user_id": student.id}
         )
 
     def get_students_in_group(self, group: Group) -> list[Student]:
