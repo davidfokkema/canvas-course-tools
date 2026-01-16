@@ -4,10 +4,9 @@ from rich.table import Table
 
 from canvas_course_tools import configfile
 from canvas_course_tools.canvas_tasks import (
+    CanvasForbidden,
+    CanvasResourceDoesNotExist,
     CanvasTasks,
-    Forbidden,
-    InvalidAccessToken,
-    ResourceDoesNotExist,
 )
 from canvas_course_tools.utils import get_canvas
 
@@ -37,19 +36,15 @@ def list_courses(server_alias, use_codes):
     config = configfile.read_config()
     if server_alias:
         canvas = get_canvas(server_alias)
-        try:
-            courses = canvas.list_courses()
-        except InvalidAccessToken:
-            raise click.UsageError(f"You must update your canvas access token.")
-        else:
-            aliases = {
-                v["course_id"]: k
-                for k, v in config.get("courses", {}).items()
-                if v["server"] == server_alias
-            }
-            for course in courses:
-                course.alias = aliases.get(course.id, None)
-            print_courses(courses, use_codes)
+        courses = canvas.list_courses()
+        aliases = {
+            v["course_id"]: k
+            for k, v in config.get("courses", {}).items()
+            if v["server"] == server_alias
+        }
+        for course in courses:
+            course.alias = aliases.get(course.id, None)
+        print_courses(courses, use_codes)
     else:
         courses = []
         forbidden_aliases = []
@@ -58,7 +53,7 @@ def list_courses(server_alias, use_codes):
                 canvas = get_canvas(course["server"])
                 try:
                     course = canvas.get_course(course["course_id"])
-                except Forbidden:
+                except CanvasForbidden:
                     forbidden_aliases.append(alias)
                 else:
                     course.alias = alias
@@ -98,9 +93,9 @@ def add_course(alias, course_id, server_alias, update):
             canvas = CanvasTasks(server["url"], server["token"])
             try:
                 canvas.get_course(course_id)
-            except ResourceDoesNotExist:
+            except CanvasResourceDoesNotExist:
                 print(f"[bold red]This course ID does not exist.[/bold red]")
-            except Forbidden:
+            except CanvasForbidden:
                 print(
                     f"[bold red]You don't have authorization for this course.[/bold red]"
                 )

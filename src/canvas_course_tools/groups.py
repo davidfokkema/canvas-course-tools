@@ -5,9 +5,9 @@ from rich import print
 from rich.progress import Progress
 
 from canvas_course_tools.canvas_tasks import (
+    CanvasForbidden,
     CanvasObjectExistsError,
-    Forbidden,
-    ResourceDoesNotExist,
+    CanvasResourceDoesNotExist,
 )
 from canvas_course_tools.group_lists import parse_group_list
 from canvas_course_tools.utils import find_course
@@ -85,9 +85,9 @@ def create_canvas_groups(course_alias, group_list, overwrite):
             for student in group.students:
                 try:
                     canvas.add_student_to_group(student, canvas_group)
-                except ResourceDoesNotExist:
+                except CanvasResourceDoesNotExist:
                     print(f"[red]WARNING: student {student.name} does not exist.")
-                except Forbidden:
+                except CanvasForbidden:
                     print(
                         f"[red]WARNING: you do not have authorization to add student {student.name}."
                     )

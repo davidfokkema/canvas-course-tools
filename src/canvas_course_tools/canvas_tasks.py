@@ -4,7 +4,6 @@ from typing import Type
 import canvasapi
 import httpx
 from canvasapi import Canvas
-from canvasapi.exceptions import Forbidden, InvalidAccessToken, ResourceDoesNotExist
 from pydantic import BaseModel
 
 from canvas_course_tools.datatypes import (
