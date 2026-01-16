@@ -58,11 +58,10 @@ class Student(BaseModel):
         return self
 
 
-@dataclass
-class Section:
+class Section(BaseModel):
     id: int
     name: str
-    students: list[Student]
+    students: list[Student] = []
 
 
 @dataclass

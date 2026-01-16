@@ -111,33 +111,18 @@ class CanvasTasks:
 
         return self._get_paginated_list(path, Student, params=params)
 
-    def get_sections(self, course_id):
-        """Get a list of sections, including students
+    def get_sections(self, course_id: int) -> list[Section]:
+        """Get a list of sections, including students.
 
         Args:
-            course_id (int): the course id
+            course_id: The ID of the Canvas course.
 
         Returns:
-            List[Section]: A list of Sections
+            A list of Section objects, each potentially containing a list of Students.
         """
-        course = self.canvas.get_course(course_id)
-        sections = course.get_sections(include=["students"])
-        return [
-            Section(
-                id=section.id,
-                name=section.name,
-                students=[
-                    Student(
-                        id=student["id"],
-                        name=student["short_name"],
-                        sortable_name=student["sortable_name"],
-                    )
-                    for student in section.students
-                ],
-            )
-            for section in sections
-            if section.students is not None
-        ]
+        path = f"/api/v1/courses/{course_id}/sections"
+        params = {"include[]": ["students"]}
+        return self._get_paginated_list(path, Section, params=params)
 
     def create_groupset(self, name, course, overwrite):
         """Create groupset in course.
