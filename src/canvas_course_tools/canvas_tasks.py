@@ -326,20 +326,10 @@ class CanvasTasks:
         Returns:
             A list of Assignment objects.
         """
-        path = f"/api/v1/courses/{group.course.id}/assignment_groups/{group.id}"
-        params = {"include[]": ["assignments"]}
-        
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.get(path, params=params)
-            response.raise_for_status()
-            data = response.json()
-            
-            # The API returns the assignment group with nested assignments
-            assignments_data = data.get("assignments", [])
-            return [
-                Assignment.model_validate(item, context={"course": group.course})
-                for item in assignments_data
-            ]
+        path = f"/api/v1/courses/{group.course.id}/assignment_groups/{group.id}/assignments"
+        return self._get_paginated_list(
+            path, Assignment, context={"course": group.course}
+        )
 
     def get_submissions(
         self, assignment: Assignment, student: Student
