@@ -1,6 +1,6 @@
 [project]
 name = "canvas-course-tools"
-version = "0.14.0"
+version = "0.14.1"
 description = "Canvas course tools"
 readme = "README.md"
 authors = [{ "name" = "David Fokkema", "email" = "davidfokkema@icloud.com" }]

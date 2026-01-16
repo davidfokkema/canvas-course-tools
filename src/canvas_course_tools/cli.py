@@ -28,7 +28,7 @@ from canvas_course_tools.students import students
 from canvas_course_tools.templates import templates
 
 
-class CanvasGroup(click.Group):
+class CanvasGroup(click.RichGroup):
     """Custom Click group that handles Canvas exceptions gracefully."""
 
     def invoke(self, ctx):
