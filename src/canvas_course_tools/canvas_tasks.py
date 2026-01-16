@@ -182,13 +182,15 @@ class CanvasTasks:
         """Get a groupset by id
 
         Args:
-            group_set_id (int): the groupset ID.
+            group_set_id: The groupset ID.
 
         Returns:
-            GroupSet: the requests groupset object.
+            The requested GroupSet object.
         """
-        groupset = self.canvas.get_group_category(group_set_id)
-        return GroupSet(id=groupset.id, name=groupset.name)
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.get(f"/api/v1/group_categories/{group_set_id}")
+            response.raise_for_status()
+            return GroupSet.model_validate(response.json())
 
     def create_group(self, group_name: str, group_set: GroupSet) -> Group:
         """Create a group inside a GroupSet.

@@ -1,5 +1,4 @@
 import pathlib
-from dataclasses import dataclass, field
 
 import canvasapi
 from pydantic import (
@@ -8,9 +7,9 @@ from pydantic import (
     BaseModel,
     Field,
     HttpUrl,
+    ValidationInfo,
     field_validator,
     model_validator,
-    ValidationInfo,
 )
 
 
@@ -49,12 +48,13 @@ class AssignmentGroup(BaseModel):
                     data = data.copy()
                     data["course"] = info.context["course"]
                 else:
-                    raise ValueError("AssignmentGroup requires 'course' in validation context")
+                    raise ValueError(
+                        "AssignmentGroup requires 'course' in validation context"
+                    )
         return data
 
 
-@dataclass
-class GroupSet:
+class GroupSet(BaseModel):
     id: int
     name: str
 
@@ -90,16 +90,14 @@ class Section(BaseModel):
     students: list[Student] = []
 
 
-@dataclass
-class StudentGroup:
+class StudentGroup(BaseModel):
     name: str = ""
-    students: list[Student] = field(default_factory=list)
+    students: list[Student] = []
 
 
-@dataclass
-class GroupList:
+class GroupList(BaseModel):
     name: str = ""
-    groups: list[StudentGroup] = field(default_factory=list)
+    groups: list[StudentGroup] = []
 
 
 class Assignment(BaseModel):
@@ -123,7 +121,9 @@ class Assignment(BaseModel):
                     data = data.copy()
                     data["course"] = info.context["course"]
                 else:
-                    raise ValueError("Assignment requires 'course' in validation context")
+                    raise ValueError(
+                        "Assignment requires 'course' in validation context"
+                    )
         return data
 
 
