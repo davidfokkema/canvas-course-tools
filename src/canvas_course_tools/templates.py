@@ -31,7 +31,7 @@ def list_templates():
     table = Table(box=box.HORIZONTALS)
     table.add_column("Template")
     table.add_column("Description")
-    for template in sorted(template_files.iterdir()):
+    for template in sorted(template_files.iterdir(), key=lambda f: f.name):
         if template.is_file() and not template == info_file:
             table.add_row(template.name, info.get(template.name, ""))
     console = Console()

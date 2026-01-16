@@ -44,7 +44,7 @@ def parse_group_list(text, photo_dir=None, relative_to=None):
                 current_group.students.append(
                     Student(
                         name=match["name"],
-                        id=match["id"],
+                        id=int(match["id"]),
                         notes=match["notes"],
                         photo=photo,
                     ),
