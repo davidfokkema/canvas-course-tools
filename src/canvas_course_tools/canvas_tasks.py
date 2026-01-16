@@ -43,6 +43,73 @@ class CanvasTasks:
     def __repr__(self) -> str:
         return f"CanvasTasks({self._url})"
 
+    def _get_single_object(
+        self,
+        path: str,
+        model: Type[BaseModel],
+        params: dict | None = None,
+        context: dict | None = None,
+    ) -> BaseModel:
+        """Get a single object from an API endpoint.
+        
+        Args:
+            path: The API endpoint path.
+            model: The Pydantic model to validate the response against.
+            params: Optional query parameters.
+            context: Optional validation context to pass to Pydantic.
+            
+        Returns:
+            A validated Pydantic model instance.
+        """
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.get(path, params=params)
+            response.raise_for_status()
+            return model.model_validate(response.json(), context=context)
+
+    def _post_object(
+        self,
+        path: str,
+        model: Type[BaseModel],
+        json: dict | None = None,
+        context: dict | None = None,
+    ) -> BaseModel:
+        """Create an object via POST request to an API endpoint.
+        
+        Args:
+            path: The API endpoint path.
+            model: The Pydantic model to validate the response against.
+            json: Optional JSON body for the POST request.
+            context: Optional validation context to pass to Pydantic.
+            
+        Returns:
+            A validated Pydantic model instance.
+        """
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.post(path, json=json)
+            response.raise_for_status()
+            return model.model_validate(response.json(), context=context)
+
+    def _post_no_response(self, path: str, json: dict | None = None) -> None:
+        """Send a POST request that doesn't require a validated response.
+        
+        Args:
+            path: The API endpoint path.
+            json: Optional JSON body for the POST request.
+        """
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.post(path, json=json)
+            response.raise_for_status()
+
+    def _delete_object(self, path: str) -> None:
+        """Delete an object via DELETE request to an API endpoint.
+        
+        Args:
+            path: The API endpoint path.
+        """
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.delete(path)
+            response.raise_for_status()
+
     def _get_paginated_list(
         self,
         path: str,
@@ -93,12 +160,11 @@ class CanvasTasks:
         Returns:
             A Canvas course object.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.get(
-                f"/api/v1/courses/{course_id}", params={"include[]": "term"}
-            )
-            response.raise_for_status()
-            return Course.model_validate(response.json())
+        return self._get_single_object(
+            f"/api/v1/courses/{course_id}",
+            Course,
+            params={"include[]": "term"}
+        )
 
     def get_students(
         self, course_id: int, show_test_student: bool = False
@@ -146,25 +212,18 @@ class CanvasTasks:
         """
         existing_groupsets = self.list_groupsets(course)
 
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            for groupset in existing_groupsets:
-                if groupset.name == name:
-                    if not overwrite:
-                        raise CanvasObjectExistsError("Groupset already exists.")
-                    else:
-                        # Issue a DELETE request
-                        delete_resp = client.delete(
-                            f"/api/v1/group_categories/{groupset.id}"
-                        )
-                        delete_resp.raise_for_status()
+        for groupset in existing_groupsets:
+            if groupset.name == name:
+                if not overwrite:
+                    raise CanvasObjectExistsError("Groupset already exists.")
+                else:
+                    self._delete_object(f"/api/v1/group_categories/{groupset.id}")
 
-            # Issue a POST request to create the new groupset
-            create_resp = client.post(
-                f"/api/v1/courses/{course.id}/group_categories",
-                json={"name": name},
-            )
-            create_resp.raise_for_status()
-            return GroupSet.model_validate(create_resp.json())
+        return self._post_object(
+            f"/api/v1/courses/{course.id}/group_categories",
+            GroupSet,
+            json={"name": name}
+        )
 
     def list_groupsets(self, course: Course) -> list[GroupSet]:
         """List groupsets in a course.
@@ -187,10 +246,10 @@ class CanvasTasks:
         Returns:
             The requested GroupSet object.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.get(f"/api/v1/group_categories/{group_set_id}")
-            response.raise_for_status()
-            return GroupSet.model_validate(response.json())
+        return self._get_single_object(
+            f"/api/v1/group_categories/{group_set_id}",
+            GroupSet
+        )
 
     def create_group(self, group_name: str, group_set: GroupSet) -> Group:
         """Create a group inside a GroupSet.
@@ -202,13 +261,11 @@ class CanvasTasks:
         Returns:
             The newly created Group object.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.post(
-                f"/api/v1/group_categories/{group_set.id}/groups",
-                json={"name": group_name},
-            )
-            response.raise_for_status()
-            return Group.model_validate(response.json())
+        return self._post_object(
+            f"/api/v1/group_categories/{group_set.id}/groups",
+            Group,
+            json={"name": group_name}
+        )
 
     def list_groups(self, group_set: GroupSet) -> list[Group]:
         """List groups in a groupset.
@@ -229,12 +286,10 @@ class CanvasTasks:
             student: The student to add to the group.
             group: The group in which to place the student.
         """
-        with httpx.Client(base_url=self._url, headers=self._headers) as client:
-            response = client.post(
-                f"/api/v1/groups/{group.id}/memberships",
-                json={"user_id": student.id},
-            )
-            response.raise_for_status()
+        self._post_no_response(
+            f"/api/v1/groups/{group.id}/memberships",
+            json={"user_id": student.id}
+        )
 
     def get_students_in_group(self, group: Group) -> list[Student]:
         """Get a list of all students in a particular group.
@@ -296,16 +351,12 @@ class CanvasTasks:
         comments, either by the student or by teachers or teaching assistants.
 
         Args:
-            assignment (Assignment): the assignment for which to get the
-            submission. student (Student): the student for whom to get the
-            submission.
+            assignment: The assignment for which to get the submission.
+            student: The student for whom to get the submission.
 
         Returns:
-            Submission: the student submission
+            The student submission.
         """
-        response = httpx.get(
-            f"{self._url}/api/v1/courses/{assignment.course.id}/assignments/{assignment.id}/submissions/{student.id}",
-            headers=self._headers,
-            params={"include[]": ["submission_history", "submission_comments"]},
-        )
-        return CanvasSubmission.model_validate_json(response.text)
+        path = f"/api/v1/courses/{assignment.course.id}/assignments/{assignment.id}/submissions/{student.id}"
+        params = {"include[]": ["submission_history", "submission_comments"]}
+        return self._get_single_object(path, CanvasSubmission, params=params)
