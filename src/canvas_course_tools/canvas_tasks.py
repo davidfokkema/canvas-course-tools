@@ -69,7 +69,7 @@ class CanvasTasks:
 
         return courses
 
-    def get_course(self, course_id):
+    def get_course(self, course_id: int) -> Course:
         """Get a Canvas course by id.
 
         Args:
@@ -78,8 +78,12 @@ class CanvasTasks:
         Returns:
             A Canvas course object.
         """
-        course = self.canvas.get_course(course_id, include=["term"])
-        return create_course_object(course)
+        with httpx.Client(base_url=self._url, headers=self._headers) as client:
+            response = client.get(
+                f"/api/v1/courses/{course_id}", params={"include[]": "term"}
+            )
+            response.raise_for_status()
+            return Course.model_validate(response.json())
 
     def get_students(self, course_id, show_test_student=False):
         """Get all students in a course.
