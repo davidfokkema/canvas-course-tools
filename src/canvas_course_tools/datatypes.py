@@ -15,8 +15,8 @@ from pydantic import (
 class Course(BaseModel):
     id: int
     name: str = ""
-    course_code: str
-    term: str
+    course_code: str = ""
+    term: str = ""
     alias: str | None = None
 
     @field_validator("term", mode="before")
