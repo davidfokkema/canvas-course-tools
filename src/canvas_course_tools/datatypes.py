@@ -159,6 +159,7 @@ class CanvasComment(BaseModel):
 
 
 class CanvasSubmission(CanvasSubmissionAttempt):
+    student_id: int = Field(validation_alias="user_id")
     grade: str | None
     score: float | None
     attempt: int | None
