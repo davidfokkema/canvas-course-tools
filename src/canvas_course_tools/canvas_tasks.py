@@ -204,7 +204,7 @@ class CanvasTasks:
         try:
             with httpx.Client(base_url=self._url, headers=self._headers) as client:
                 while url:
-                    response = client.get(url, params=request_params)
+                    response = client.get(url, params=request_params, timeout=1000)
                     self._handle_response_errors(response)
                     items.extend(
                         [
