@@ -409,7 +409,7 @@ class CanvasTasks:
             path, Assignment, context={"course": group.course}
         )
 
-    def get_submissions(
+    def get_submission(
         self, assignment: Assignment, student: Student
     ) -> CanvasSubmission:
         """Get student submission.
@@ -428,3 +428,21 @@ class CanvasTasks:
         path = f"/api/v1/courses/{assignment.course.id}/assignments/{assignment.id}/submissions/{student.id}"
         params = {"include[]": ["submission_history", "submission_comments"]}
         return self._get_single_object(path, CanvasSubmission, params=params)
+
+    def get_submissions(self, assignment: Assignment) -> list[CanvasSubmission]:
+        """Get submissions for all students.
+
+        Gets all student submissions from Canvas for a particular assignment.
+        The submissions include all submission attempts along with all
+        submission comments, either by the student or by teachers or teaching
+        assistants.
+
+        Args:
+            assignment: The assignment for which to get the submission.
+
+        Returns:
+            A list of all student submissions.
+        """
+        path = f"/api/v1/courses/{assignment.course.id}/assignments/{assignment.id}/submissions"
+        params = {"include[]": ["submission_history", "submission_comments"]}
+        return self._get_paginated_list(path, CanvasSubmission, params=params)
