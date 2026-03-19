@@ -276,7 +276,7 @@ class CanvasTasks:
             A list of Section objects, each potentially containing a list of Students.
         """
         path = f"/api/v1/courses/{course_id}/sections"
-        params = {"include[]": ["students"]}
+        params = {"include[]": ["students", "email"]}
         return self._get_paginated_list(path, Section, params=params)
 
     def create_groupset(self, name: str, course: Course, overwrite: bool) -> GroupSet:

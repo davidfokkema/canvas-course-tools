@@ -4,6 +4,7 @@ from pydantic import (
     AliasChoices,
     AwareDatetime,
     BaseModel,
+    EmailStr,
     Field,
     HttpUrl,
     ValidationInfo,
@@ -70,6 +71,7 @@ class Student(BaseModel):
     sortable_name: str | None = None
     first_name: str = ""
     last_name: str = ""
+    email: EmailStr = ""
     notes: str | None = None
     photo: pathlib.Path | None = None
 
